@@ -1,0 +1,43 @@
+{
+  "name": "@pefish/js-coin-trx",
+  "version": "0.0.1",
+  "description": "",
+  "keywords": [
+    "common",
+    "js",
+    "tool",
+    "ether"
+  ],
+  "homepage": "https://github.com/pefish/js-coin-trx",
+  "bugs": "https://github.com/pefish/js-coin-trx/issues",
+  "license": "MIT",
+  "author": "pefish",
+  "types": "./types/index.d.ts",
+  "main": "./lib/index.js",
+  "engines": {
+    "node": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pefish/js-coin-trx"
+  },
+  "scripts": {
+    "build": "rm -rf lib && rm -rf types && tsc",
+    "test": "mocha --timeout 15000 --require ts-node/register src/**/*.test.ts",
+    "t": "mocha --timeout 15000 --require ts-node/register",
+    "prepublish": "yarn build"
+  },
+  "dependencies": {
+    "@pefish/js-node-assist": "^0.6.14",
+    "bip32": "^2.0.4",
+    "bip39": "^3.0.2",
+    "tronweb": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^11.13.7",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.5"
+  }
+}

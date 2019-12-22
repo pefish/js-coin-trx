@@ -1,2 +1,3 @@
 import "@pefish/js-node-assist";
-export {};
+import Wallet from './wallet';
+export { Wallet };

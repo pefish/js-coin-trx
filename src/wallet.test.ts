@@ -34,7 +34,7 @@ describe('Wallet', () => {
 
   it('deriveAllByXprivPath', async () => {
     try {
-      const result = await helper.deriveAllByXprivPath(`xprv9s21ZrQH143K3iq8soZGLcmK7BdFe8SjXTMTsbU7QkApdiQ1BZRaJFXZTFysz7puWxDPfddorDqedF24F5dSkDaVoiUFvdpMF6MzbcFFMhp`, `m/44'/195'/0'/0/1234`)
+      const result = await helper.deriveAllByXprivPath(`xprv9s21ZrQH143K3iq8soZGLcmK7BdFe8SjXTMTsbU7QkApdiQ1BZRaJFXZTFysz7puWxDPfddorDqedF24F5dSkDaVoiUFvdpMF6MzbcFFMhp`, `m/44'/195'/0'/0/1`)
       // console.error('result', result)
       assert.strictEqual(result.address, `TNxg4zPNzQRnVt6JFHRwc6Wf1LepSkhB3H`)
       assert.strictEqual(result.privateKey, `3e62cc7c5a7cc4fd555cb4831e48a594aec8d33586a326845cec68a3c08d4b05`)

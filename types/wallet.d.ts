@@ -23,6 +23,7 @@ export default class Wallet {
     buildTransferTokenTx(pkey: string, fromAddress: string, toAddress: string, tokenName: string, amount: string): Promise<{
         txId: any;
         txHex: any;
+        txData: any;
     }>;
     sendRawTransaction(tx: {
         [x: string]: any;
@@ -30,8 +31,11 @@ export default class Wallet {
     buildContractCallTx(pkey: string, contractAddress: string, fromAddress: string, method: string, params: {
         type: string;
         value: any;
-    }[]): Promise<{
+    }[], opts?: {
+        [x: string]: any;
+    }): Promise<{
         txId: any;
         txHex: any;
+        txData: any;
     }>;
 }

@@ -63,7 +63,8 @@ export default class Wallet {
     tx = await this.tronWeb.trx.sign(tx, pkey)
     return {
       txId: tx.txID,
-      txHex: tx,
+      txHex: tx.raw_data_hex,
+      txData: tx,
     }
   }
 
@@ -75,13 +76,13 @@ export default class Wallet {
   async buildContractCallTx(pkey: string, contractAddress: string, fromAddress: string, method: string, params: {
     type: string,
     value: any,
-  }[]) {
-    const options = {}
-    let tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, method, options, params, fromAddress);
+  }[], opts: {[x: string]: any} = {}) {
+    let tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, method, opts, params, fromAddress);
     tx = await this.tronWeb.trx.sign(tx.transaction, pkey)
     return {
       txId: tx.txID,
-      txHex: tx,
+      txHex: tx.raw_data_hex,
+      txData: tx,
     }
   }
 }

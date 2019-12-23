@@ -27,7 +27,10 @@ export default class Wallet {
     }>;
     sendRawTransaction(tx: {
         [x: string]: any;
-    }): Promise<boolean>;
+    }): Promise<Error>;
+    mustSendRawTransaction(tx: {
+        [x: string]: any;
+    }): Promise<void>;
     buildContractCallTx(pkey: string, contractAddress: string, fromAddress: string, method: string, params: {
         type: string;
         value: any;
@@ -38,6 +41,8 @@ export default class Wallet {
         txHex: any;
         txData: any;
     }>;
+    hexToUtf8(hex: string): string;
+    utf8ToHex(utf8: string): string;
     hexToAddress(hex: string): string;
     addressToHex(address: string): string;
 }

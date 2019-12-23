@@ -68,9 +68,19 @@ export default class Wallet {
     }
   }
 
-  async sendRawTransaction(tx: { [x: string]: any }): Promise<boolean> {
+  async sendRawTransaction(tx: { [x: string]: any }): Promise<Error> {
     const result = await this.tronWeb.trx.sendRawTransaction(tx)
-    return result.result
+    if (result.code) {
+      return new Error(this.tronWeb.toUtf8(result.message))
+    }
+    return null
+  }
+
+  async mustSendRawTransaction(tx: { [x: string]: any }) {
+    const err = await this.sendRawTransaction(tx)
+    if (err) {
+      throw err
+    }
   }
 
   async buildContractCallTx(pkey: string, contractAddress: string, fromAddress: string, method: string, params: {
@@ -84,6 +94,14 @@ export default class Wallet {
       txHex: tx.raw_data_hex,
       txData: tx,
     }
+  }
+
+  hexToUtf8 (hex: string): string {
+    return this.tronWeb.toUtf8(hex)
+  }
+
+  utf8ToHex (utf8: string): string {
+    return this.tronWeb.fromUtf8(utf8)
   }
 
   hexToAddress (hex: string): string {

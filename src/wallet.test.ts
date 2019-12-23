@@ -34,7 +34,7 @@ describe('Wallet', () => {
 
   it('deriveAllByXprivPath', async () => {
     try {
-      const result = await helper.deriveAllByXprivPath(`xprv9s21ZrQH143K3iq8soZGLcmK7BdFe8SjXTMTsbU7QkApdiQ1BZRaJFXZTFysz7puWxDPfddorDqedF24F5dSkDaVoiUFvdpMF6MzbcFFMhp`, `m/44'/195'/0'/0/1`)
+      const result = await helper.deriveAllByXprivPath(`xprv9s21ZrQH143K3iq8soZGLcmK7BdFe8SjXTMTsbU7QkApdiQ1BZRaJFXZTFysz7puWxDPfddorDqedF24F5dSkDaVoiUFvdpMF6MzbcFFMhp`, `m/44'/195'/0'/0/1234`)
       // console.error('result', result)
       assert.strictEqual(result.address, `TNxg4zPNzQRnVt6JFHRwc6Wf1LepSkhB3H`)
       assert.strictEqual(result.privateKey, `3e62cc7c5a7cc4fd555cb4831e48a594aec8d33586a326845cec68a3c08d4b05`)
@@ -49,6 +49,28 @@ describe('Wallet', () => {
       const result = await helper.isAddress(`TNxg4zPNzQRnVt6JFHRwc6Wf1LepSkhB3H`)
       // console.error('result', result)
       assert.strictEqual(result, true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('hexToAddress', async () => {
+    try {
+      const result = await helper.hexToAddress(`41e3cf5eefe3a2abf35a344ae8a3b2f4bb29810cbd`)
+      // console.error('result', result)
+      assert.strictEqual(result, `TWjkoz18Y48SgWoxEeGG11ezCCzee8wo1A`)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('addressToHex', async () => {
+    try {
+      const result = await helper.addressToHex(`TWjkoz18Y48SgWoxEeGG11ezCCzee8wo1A`)
+      // console.error('result', result)
+      assert.strictEqual(result, `41e3cf5eefe3a2abf35a344ae8a3b2f4bb29810cbd`)
     } catch (err) {
       console.error(err)
       assert.throws(() => {}, err)

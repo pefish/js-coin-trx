@@ -85,4 +85,12 @@ export default class Wallet {
       txData: tx,
     }
   }
+
+  hexToAddress (hex: string): string {
+    return this.tronWeb.address.fromHex(hex)
+  }
+
+  addressToHex (address: string): string {
+    return this.tronWeb.address.toHex(address)
+  }
 }

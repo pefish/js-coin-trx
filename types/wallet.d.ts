@@ -38,4 +38,6 @@ export default class Wallet {
         txHex: any;
         txData: any;
     }>;
+    hexToAddress(hex: string): string;
+    addressToHex(address: string): string;
 }

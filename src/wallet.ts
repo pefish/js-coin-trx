@@ -35,12 +35,23 @@ export default class Wallet {
     const node = fromBase58(xpriv)
     const currentNode = node.derivePath(path)
     const privateKey = currentNode.privateKey.toHexString_(false)
+    const publicKey = TronWeb.utils.code.byteArray2hexStr(TronWeb.utils.crypto.getPubKeyFromPriKey(currentNode.privateKey)).toLowerCase()
     return {
       xpriv: currentNode.toBase58(),
       xpub: currentNode.neutered().toBase58(),
       privateKey,
-      publicKey: currentNode.publicKey.toHexString_(false),
+      publicKey,
       address: TronWeb.address.fromPrivateKey(privateKey),
+    }
+  }
+
+  getAllFromPkey(pkey: string): {
+    publicKey: string,
+    address: string,
+  } {
+    return {
+      publicKey: TronWeb.utils.code.byteArray2hexStr(TronWeb.utils.crypto.getPubKeyFromPriKey(pkey.hexToBuffer_())).toLowerCase(),
+      address: TronWeb.address.fromPrivateKey(pkey),
     }
   }
 
@@ -69,11 +80,15 @@ export default class Wallet {
   }
 
   async sendRawTransaction(tx: { [x: string]: any }): Promise<Error> {
-    const result = await this.tronWeb.trx.sendRawTransaction(tx)
-    if (result.code) {
-      return new Error(this.tronWeb.toUtf8(result.message))
+    try {
+      const result = await this.tronWeb.trx.sendRawTransaction(tx)
+      if (result.code) {
+        return new Error(this.tronWeb.toUtf8(result.message))
+      }
+      return null
+    } catch (err) {
+      return err
     }
-    return null
   }
 
   async mustSendRawTransaction(tx: { [x: string]: any }) {

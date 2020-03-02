@@ -13,6 +13,10 @@ export default class Wallet {
         publicKey: string;
         address: string;
     };
+    getAllFromPkey(pkey: string): {
+        publicKey: string;
+        address: string;
+    };
     buildTransferTx(pkey: string, fromAddress: string, toAddress: string, amount: string): Promise<{
         txId: string;
         txHex: string;

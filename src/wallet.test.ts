@@ -44,6 +44,28 @@ describe('Wallet', () => {
     }
   })
 
+  it('getBalance', async () => {
+    try {
+      const result = await helper.getBalance(`TRNigEZz9Vt7PUNJkD2TbgmcaMt9PXdbnC`)
+      // console.error('result', result)
+      assert.strictEqual(result.gt_(0), true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('getUnconfirmedBalance', async () => {
+    try {
+      const result = await helper.getUnconfirmedBalance(`TRNigEZz9Vt7PUNJkD2TbgmcaMt9PXdbnC`)
+      // console.error('result', result)
+      assert.strictEqual(result.gt_(0), true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
   it('deriveAllByXprivPath', async () => {
     try {
       const result = await helper.deriveAllByXprivPath(`xprv9s21ZrQH143K3iq8soZGLcmK7BdFe8SjXTMTsbU7QkApdiQ1BZRaJFXZTFysz7puWxDPfddorDqedF24F5dSkDaVoiUFvdpMF6MzbcFFMhp`, `m/44'/195'/0'/0/1234`)

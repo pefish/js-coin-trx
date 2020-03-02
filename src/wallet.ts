@@ -111,6 +111,16 @@ export default class Wallet {
     }
   }
 
+  async getBalance (address: string): Promise<string> {
+    const result = await this.tronWeb.trx.getBalance(address)
+    return result.toString()
+  }
+
+  async getUnconfirmedBalance (address: string): Promise<string> {
+    const result = await this.tronWeb.trx.getUnconfirmedBalance(address)
+    return result.toString()
+  }
+
   async buildTransferTokenTx(pkey: string, toAddress: string, tokenName: string, amount: string) {
     const { address } = this.getAllFromPkey(pkey)
     let tx = await this.tronWeb.transactionBuilder.sendToken(toAddress, amount, tokenName, address)

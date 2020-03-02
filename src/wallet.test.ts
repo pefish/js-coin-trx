@@ -148,9 +148,9 @@ describe('Wallet', () => {
 
   it('getConfirmedTransactionInfo', async () => {
     try {
-      const result = await helper.getConfirmedTransactionInfo(`37eb3c9fa0b9810cddc4e504fbe1d71c139d5b3ce4d402c884dc9b265538c2f2`)
-      // console.error('result', util.inspect(result, false, 10))
-      assert.strictEqual(result.id, `37eb3c9fa0b9810cddc4e504fbe1d71c139d5b3ce4d402c884dc9b265538c2f2`)
+      const result = await helper.getConfirmedTransactionInfo(`354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
+      console.error('result', util.inspect(result, false, 10))
+      // assert.strictEqual(result.id, `37eb3c9fa0b9810cddc4e504fbe1d71c139d5b3ce4d402c884dc9b265538c2f2`)
     } catch (err) {
       console.error(err)
       assert.throws(() => {}, err)

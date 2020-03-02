@@ -7,23 +7,23 @@ import util from 'util'
 
 interface TransactionInfo {
   id: string,
-  fee: number,
+  fee?: number, // 消耗的energy的数量
   blockNumber: number,
   blockTimeStamp: number,
-  contractResult: string[],
-  contract_address: string,
+  contractResult?: string[],
+  contract_address?: string,
   receipt: {
-    energy_fee: number,
-    energy_usage_total: number,
+    energy_fee?: number,
+    energy_usage_total?: number,
     net_usage: number,
-    result: string,
+    result?: string,
   },
   log?: {
     address: string,
     topics: any[][],
     data: string
   }[],
-  internal_transactions: { [x: string]: any }[],
+  internal_transactions?: { [x: string]: any }[],
   result?: string,
   resMessage?: string,
 }
@@ -165,7 +165,7 @@ export default class Wallet {
       const tran = await this.getConfirmedTransactionInfo(tx.txID)
       if (tran) {
         // console.log(`${tx.txID} 交易已确认。区块id：${tran.blockNumber}`)
-        if (tran.receipt.result !== `SUCCESS`) {
+        if (tran.receipt.result && tran.receipt.result !== `SUCCESS`) {
           throw new Error(this.hexToUtf8(tran.resMessage))
         }
         return tran

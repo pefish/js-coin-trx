@@ -1,22 +1,22 @@
 interface TransactionInfo {
     id: string;
-    fee: number;
+    fee?: number;
     blockNumber: number;
     blockTimeStamp: number;
-    contractResult: string[];
-    contract_address: string;
+    contractResult?: string[];
+    contract_address?: string;
     receipt: {
-        energy_fee: number;
-        energy_usage_total: number;
+        energy_fee?: number;
+        energy_usage_total?: number;
         net_usage: number;
-        result: string;
+        result?: string;
     };
     log?: {
         address: string;
         topics: any[][];
         data: string;
     }[];
-    internal_transactions: {
+    internal_transactions?: {
         [x: string]: any;
     }[];
     result?: string;

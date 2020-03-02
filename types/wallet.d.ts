@@ -39,7 +39,10 @@ export default class Wallet {
         type: string;
         value: any;
     }[], opts?: {
-        [x: string]: any;
+        callValue?: number;
+        feeLimit: number;
+        _isConstant?: boolean;
+        confirmed?: boolean;
     }): Promise<{
         txId: any;
         txHex: any;

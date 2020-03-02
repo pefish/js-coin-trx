@@ -101,7 +101,17 @@ export default class Wallet {
   async buildContractCallTx(pkey: string, contractAddress: string, fromAddress: string, method: string, params: {
     type: string,
     value: any,
-  }[], opts: {[x: string]: any} = {}) {
+  }[], opts: {
+    callValue?: number,
+    feeLimit: number,
+    _isConstant?: boolean,
+    confirmed?: boolean,
+  } = {
+        callValue: 0,
+        feeLimit: 1_000_000_000,
+        _isConstant: false,
+        confirmed: false,
+      }) {
     let tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, method, opts, params, fromAddress);
     tx = await this.tronWeb.trx.sign(tx.transaction, pkey)
     return {
@@ -111,19 +121,19 @@ export default class Wallet {
     }
   }
 
-  hexToUtf8 (hex: string): string {
+  hexToUtf8(hex: string): string {
     return this.tronWeb.toUtf8(hex)
   }
 
-  utf8ToHex (utf8: string): string {
+  utf8ToHex(utf8: string): string {
     return this.tronWeb.fromUtf8(utf8)
   }
 
-  hexToAddress (hex: string): string {
+  hexToAddress(hex: string): string {
     return this.tronWeb.address.fromHex(hex)
   }
 
-  addressToHex (address: string): string {
+  addressToHex(address: string): string {
     return this.tronWeb.address.toHex(address)
   }
 }

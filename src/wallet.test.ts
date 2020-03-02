@@ -55,6 +55,17 @@ describe('Wallet', () => {
     }
   })
 
+  it('getTokenBalance', async () => {
+    try {
+      const result = await helper.getTokenBalance(`TFhnc8acrgmpvVx1LyZpPbVpwAsYRDisBv`, `TCfVo9rhFqngrCbqcMy2U7uEeFXcd5EyXP`)
+      // console.error('result', result)
+      assert.strictEqual(result.gt_(0), true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
   it('getUnconfirmedBalance', async () => {
     try {
       const result = await helper.getUnconfirmedBalance(`TRNigEZz9Vt7PUNJkD2TbgmcaMt9PXdbnC`)

@@ -20,7 +20,8 @@
       "es2016",
       "es2017"
     ],
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true
   },
   "include": [
     "src/**/*"

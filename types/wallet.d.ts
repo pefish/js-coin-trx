@@ -73,6 +73,7 @@ export default class Wallet {
         };
     }>;
     getBalance(address: string): Promise<string>;
+    getTokenBalance(address: string, contractAddress: string): Promise<string>;
     getUnconfirmedBalance(address: string): Promise<string>;
     buildTransferTokenTx(pkey: string, contractAddress: string, toAddress: string, amount: string, opts?: ContractCallOpt): Promise<{
         txId: any;

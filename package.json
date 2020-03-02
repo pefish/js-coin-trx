@@ -1,6 +1,6 @@
 {
   "name": "@pefish/js-coin-trx",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "description": "",
   "keywords": [
     "common",
@@ -23,11 +23,12 @@
   },
   "scripts": {
     "build": "rm -rf lib && rm -rf types && tsc",
-    "test": "mocha --timeout 15000 --require ts-node/register src/**/*.test.ts",
-    "t": "mocha --timeout 15000 --require ts-node/register",
+    "test": "mocha --timeout 150000 --require ts-node/register src/**/*.test.ts",
+    "t": "mocha --timeout 150000 --require ts-node/register",
     "prepublish": "yarn build && yarn test"
   },
   "dependencies": {
+    "@pefish/js-decorator": "^0.0.4",
     "@pefish/js-node-assist": "^0.6.15",
     "@pefish/js-util-time": "^0.1.0",
     "bip32": "^2.0.4",

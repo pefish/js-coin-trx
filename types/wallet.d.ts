@@ -1,3 +1,45 @@
+interface TransactionInfo {
+    id: string;
+    fee: number;
+    blockNumber: number;
+    blockTimeStamp: number;
+    contractResult: string[];
+    contract_address: string;
+    receipt: {
+        energy_fee: number;
+        energy_usage_total: number;
+        net_usage: number;
+        result: string;
+    };
+    log?: {
+        address: string;
+        topics: any[][];
+        data: string;
+    }[];
+    internal_transactions: {
+        [x: string]: any;
+    }[];
+    result?: string;
+    resMessage?: string;
+}
+interface Transaction {
+    ret?: {
+        contractRet: string;
+    }[];
+    signature: string[];
+    txID: string;
+    raw_data: {
+        contract: {
+            [x: string]: any;
+        };
+        ref_block_bytes: string;
+        ref_block_hash: string;
+        expiration: number;
+        fee_limit: number;
+        timestamp: number;
+    };
+    raw_data_hex: string;
+}
 export default class Wallet {
     private fullNode;
     private solidityNode;
@@ -17,25 +59,31 @@ export default class Wallet {
         publicKey: string;
         address: string;
     };
-    buildTransferTx(pkey: string, fromAddress: string, toAddress: string, amount: string): Promise<{
+    buildTransferTx(pkey: string, toAddress: string, amount: string): Promise<{
         txId: string;
         txHex: string;
         txData: {
             [x: string]: any;
         };
     }>;
-    buildTransferTokenTx(pkey: string, fromAddress: string, toAddress: string, tokenName: string, amount: string): Promise<{
+    buildTransferTokenTx(pkey: string, toAddress: string, tokenName: string, amount: string): Promise<{
         txId: any;
         txHex: any;
         txData: any;
     }>;
-    sendRawTransaction(tx: {
+    getTransaction(txHash: string): Promise<Transaction>;
+    getConfirmedTransaction(txHash: string): Promise<Transaction>;
+    getConfirmedTransactionInfo(txHash: string): Promise<TransactionInfo>;
+    syncSendRawTx(tx: {
+        [x: string]: any;
+    }): Promise<TransactionInfo>;
+    sendRawTxReturnErr(tx: {
         [x: string]: any;
     }): Promise<Error>;
-    mustSendRawTransaction(tx: {
+    sendRawTx(tx: {
         [x: string]: any;
     }): Promise<void>;
-    buildContractCallTx(pkey: string, contractAddress: string, fromAddress: string, method: string, params: {
+    buildContractCallTx(pkey: string, contractAddress: string, method: string, params: {
         type: string;
         value: any;
     }[], opts?: {
@@ -53,3 +101,4 @@ export default class Wallet {
     hexToAddress(hex: string): string;
     addressToHex(address: string): string;
 }
+export {};

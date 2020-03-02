@@ -22,6 +22,13 @@
     "@pefish/js-error" "^0.1.2"
     bignumber.js "^8.1.1"
 
+"@pefish/js-util-time@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@pefish/js-util-time/-/js-util-time-0.1.0.tgz#f875d82f94530daa6a5ebe5b583ae142d10086ff"
+  integrity sha512-qiJPBxjNdIVMvg1D4H4WQHGzK3QKtq/racVkeIu5Ul9K6pcObfuBiXce+ZsxoLcP0Y5Pbnf6bYJzgcQvgTl/7g==
+  dependencies:
+    moment "^2.24.0"
+
 "@types/chai@^4.1.7":
   version "4.2.7"
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.2.7.tgz#1c8c25cbf6e59ffa7d6b9652c78e547d9a41692d"
@@ -325,6 +332,11 @@ minimalistic-crypto-utils@^1.0.0, minimalistic-crypto-utils@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/minimalistic-crypto-utils/-/minimalistic-crypto-utils-1.0.1.tgz#f6c00c1c0b082246e5c4d99dfb8c7c083b2b582a"
   integrity sha1-9sAMHAsIIkblxNmd+4x8CDsrWCo=
+
+moment@^2.24.0:
+  version "2.24.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
+  integrity sha512-bV7f+6l2QigeBBZSM/6yTNq4P2fNpSWj/0e7jQcy87A8e7o2nAfP/34/2ky5Vw4B9S446EtIhodAzkFCcR4dQg==
 
 ms@2.0.0:
   version "2.0.0"

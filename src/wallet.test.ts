@@ -1,6 +1,7 @@
 import "@pefish/js-node-assist"
 import assert from "assert"
 import Wallet from './wallet'
+import util from 'util'
 
 describe('Wallet', () => {
 
@@ -15,6 +16,17 @@ describe('Wallet', () => {
       const result = await helper.getSeedHexByMnemonic(`hjuygdjutyshjdeushx`)
       // console.error('result', result)
       assert.strictEqual(result, `dbdb21e2cfc2038a9aad1472781da308afdcc09e7d58bb848fb0d3fad74980c5682da2b63e729cc16377395202a1d98d340cf2d96ca6bcaa8b81679630ef653f`)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('hexToUtf8', async () => {
+    try {
+      const result = helper.hexToUtf8(`4e6f7420656e6f75676820656e6572677920666f722027505553483127206f7065726174696f6e20657865637574696e673a20637572496e766f6b65456e657267794c696d69745b305d2c206375724f70456e657267795b335d2c2075736564456e657267795b305d`)
+      // console.error('result', result)
+      assert.strictEqual(result.startsWith(`Not enough`), true)
     } catch (err) {
       console.error(err)
       assert.throws(() => {}, err)
@@ -90,11 +102,43 @@ describe('Wallet', () => {
     }
   })
 
+  it('getTransaction', async () => {
+    try {
+      const result = await helper.getTransaction(`37eb3c9fa0b9810cddc4e504fbe1d71c139d5b3ce4d402c884dc9b265538c2f2`)
+      // console.error('result', result)
+      assert.strictEqual(result.txID, `37eb3c9fa0b9810cddc4e504fbe1d71c139d5b3ce4d402c884dc9b265538c2f2`)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('getConfirmedTransaction', async () => {
+    try {
+      const result = await helper.getConfirmedTransaction(`12579a84905020674a2ef661bd77230a6133f68eb27e0dc96209c4234d895a35`)
+      // console.error('result', util.inspect(result, false, 10))
+      assert.strictEqual(result, null)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('getConfirmedTransactionInfo', async () => {
+    try {
+      const result = await helper.getConfirmedTransactionInfo(`37eb3c9fa0b9810cddc4e504fbe1d71c139d5b3ce4d402c884dc9b265538c2f2`)
+      // console.error('result', util.inspect(result, false, 10))
+      assert.strictEqual(result.id, `37eb3c9fa0b9810cddc4e504fbe1d71c139d5b3ce4d402c884dc9b265538c2f2`)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
   // it('buildTransferTx', async () => {
   //   try {
   //     const result = await helper.buildTransferTx(
   //       `4f37545d72b4da2dcec24942ff281b9e140041df45df62b3fcc55cac760e2ead`,
-  //       `TMkySan3Duinty1fRDSRw3KzW6ciq4DNFT`,
   //       `TNxg4zPNzQRnVt6JFHRwc6Wf1LepSkhB3H`,
   //       `1000000`
   //       )
@@ -110,7 +154,6 @@ describe('Wallet', () => {
     try {
       const result = await helper.buildContractCallTx(
         `4f37545d72b4da2dcec24942ff281b9e140041df45df62b3fcc55cac760e2ead`,
-        `TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t`,
         `TMkySan3Duinty1fRDSRw3KzW6ciq4DNFT`,
         `transfer(address,uint256)`,
         [{

@@ -2,7 +2,48 @@
 import { fromSeed, fromBase58 } from 'bip32'
 import * as bip39Lib from 'bip39'
 import TronWeb from 'tronweb'
+import TimeUtil from '@pefish/js-util-time'
+import util from 'util'
 
+interface TransactionInfo {
+  id: string,
+  fee: number,
+  blockNumber: number,
+  blockTimeStamp: number,
+  contractResult: string[],
+  contract_address: string,
+  receipt: {
+    energy_fee: number,
+    energy_usage_total: number,
+    net_usage: number,
+    result: string,
+  },
+  log?: {
+    address: string,
+    topics: any[][],
+    data: string
+  }[],
+  internal_transactions: { [x: string]: any }[],
+  result?: string,
+  resMessage?: string,
+}
+
+interface Transaction {
+  ret?: {
+    contractRet: string,
+  }[],
+  signature: string[],
+  txID: string,
+  raw_data: {
+    contract: { [x: string]: any },
+    ref_block_bytes: string,
+    ref_block_hash: string,
+    expiration: number,
+    fee_limit: number,
+    timestamp: number,
+  },
+  raw_data_hex: string,
+}
 export default class Wallet {
   private fullNode: string = `https://api.trongrid.io`
   private solidityNode: string = `https://api.trongrid.io`
@@ -55,12 +96,13 @@ export default class Wallet {
     }
   }
 
-  async buildTransferTx(pkey: string, fromAddress: string, toAddress: string, amount: string): Promise<{
+  async buildTransferTx(pkey: string, toAddress: string, amount: string): Promise<{
     txId: string,
     txHex: string,
     txData: { [x: string]: any },
   }> {
-    let tx = await this.tronWeb.transactionBuilder.sendTrx(toAddress, amount, fromAddress)
+    const { address } = this.getAllFromPkey(pkey)
+    let tx = await this.tronWeb.transactionBuilder.sendTrx(toAddress, amount, address)
     tx = await this.tronWeb.trx.sign(tx, pkey)
     return {
       txId: tx.txID,
@@ -69,8 +111,9 @@ export default class Wallet {
     }
   }
 
-  async buildTransferTokenTx(pkey: string, fromAddress: string, toAddress: string, tokenName: string, amount: string) {
-    let tx = await this.tronWeb.transactionBuilder.sendToken(toAddress, amount, tokenName, fromAddress)
+  async buildTransferTokenTx(pkey: string, toAddress: string, tokenName: string, amount: string) {
+    const { address } = this.getAllFromPkey(pkey)
+    let tx = await this.tronWeb.transactionBuilder.sendToken(toAddress, amount, tokenName, address)
     tx = await this.tronWeb.trx.sign(tx, pkey)
     return {
       txId: tx.txID,
@@ -79,7 +122,49 @@ export default class Wallet {
     }
   }
 
-  async sendRawTransaction(tx: { [x: string]: any }): Promise<Error> {
+  // 未确认的也能取到
+  async getTransaction(txHash: string): Promise<Transaction> {
+    return await this.tronWeb.trx.getTransaction(txHash)
+  }
+
+  // 只能取到已确认的
+  async getConfirmedTransaction(txHash: string): Promise<Transaction> {
+    try {
+      return await this.tronWeb.trx.getConfirmedTransaction(txHash)
+    } catch (err) {
+      if (err.indexOf(`Transaction not found`) !== -1) {
+        return null
+      }
+      throw err
+    }
+  }
+
+  async getConfirmedTransactionInfo(txHash: string): Promise<TransactionInfo> {
+    const transactionInfo = await this.tronWeb.trx.getTransactionInfo(txHash)
+    if (!transactionInfo || Object.keys(transactionInfo).length === 0) {
+      return null
+    }
+    return transactionInfo
+  }
+
+  // 交易确认但是失败的话，抛出错误
+  async syncSendRawTx(tx: { [x: string]: any }): Promise<TransactionInfo> {
+    await this.sendRawTx(tx)
+    while (true) {
+      // console.log(`检查 ${tx.txID} 交易中...`)
+      const tran = await this.getConfirmedTransactionInfo(tx.txID)
+      if (tran) {
+        // console.log(`${tx.txID} 交易已确认。区块id：${tran.blockNumber}`)
+        if (tran.receipt.result !== `SUCCESS`) {
+          throw new Error(this.hexToUtf8(tran.resMessage))
+        }
+        return tran
+      }
+      await TimeUtil.sleep(3000)
+    }
+  }
+
+  async sendRawTxReturnErr(tx: { [x: string]: any }): Promise<Error> {
     try {
       const result = await this.tronWeb.trx.sendRawTransaction(tx)
       if (result.code) {
@@ -91,14 +176,14 @@ export default class Wallet {
     }
   }
 
-  async mustSendRawTransaction(tx: { [x: string]: any }) {
-    const err = await this.sendRawTransaction(tx)
+  async sendRawTx(tx: { [x: string]: any }) {
+    const err = await this.sendRawTxReturnErr(tx)
     if (err) {
       throw err
     }
   }
 
-  async buildContractCallTx(pkey: string, contractAddress: string, fromAddress: string, method: string, params: {
+  async buildContractCallTx(pkey: string, contractAddress: string, method: string, params: {
     type: string,
     value: any,
   }[], opts: {
@@ -108,14 +193,15 @@ export default class Wallet {
     confirmed?: boolean,
   } = {
         callValue: 0,
-        feeLimit: 1_000_000_000,
+        feeLimit: 1_000_000_000, // 最高Energy费用限额 1000 TRX
         _isConstant: false,
         confirmed: false,
       }) {
     if (!opts.feeLimit) {
       opts.feeLimit = 1_000_000_000
     }
-    let tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, method, opts, params, fromAddress);
+    const { address } = this.getAllFromPkey(pkey)
+    let tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, method, opts, params, address);
     tx = await this.tronWeb.trx.sign(tx.transaction, pkey)
     return {
       txId: tx.txID,

@@ -1,6 +1,6 @@
 {
   "name": "@pefish/js-coin-trx",
-  "version": "0.0.9",
+  "version": "0.1.1",
   "description": "",
   "keywords": [
     "common",
@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@pefish/js-node-assist": "^0.6.15",
+    "@pefish/js-util-time": "^0.1.0",
     "bip32": "^2.0.4",
     "bip39": "^3.0.2",
     "tronweb": "^2.8.1"

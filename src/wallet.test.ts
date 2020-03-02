@@ -149,8 +149,8 @@ describe('Wallet', () => {
   it('getConfirmedTransactionInfo', async () => {
     try {
       const result = await helper.getConfirmedTransactionInfo(`354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
-      console.error('result', util.inspect(result, false, 10))
-      // assert.strictEqual(result.id, `37eb3c9fa0b9810cddc4e504fbe1d71c139d5b3ce4d402c884dc9b265538c2f2`)
+      // console.error('result', util.inspect(result, false, 10))
+      assert.strictEqual(result.id, `354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
     } catch (err) {
       console.error(err)
       assert.throws(() => {}, err)
@@ -176,18 +176,34 @@ describe('Wallet', () => {
     try {
       const result = await helper.buildContractCallTx(
         `4f37545d72b4da2dcec24942ff281b9e140041df45df62b3fcc55cac760e2ead`,
-        `TMkySan3Duinty1fRDSRw3KzW6ciq4DNFT`,
+        `TCfVo9rhFqngrCbqcMy2U7uEeFXcd5EyXP`,
         `transfer(address,uint256)`,
         [{
           type: `address`,
           value: `TNxg4zPNzQRnVt6JFHRwc6Wf1LepSkhB3H`,
         }, {
-          type: `uint64`,
+          type: `uint256`,
           value: `100000`
         }],
         )
       // console.error('result', JSON.stringify(result))
       assert.strictEqual(!!result.txId, true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('buildTransferTokenTx', async () => {
+    try {
+      const result = await helper.buildTransferTokenTx(
+        `4f37545d72b4da2dcec24942ff281b9e140041df45df62b3fcc55cac760e2ead`,
+        `TCfVo9rhFqngrCbqcMy2U7uEeFXcd5EyXP`,
+        `TNxg4zPNzQRnVt6JFHRwc6Wf1LepSkhB3H`,
+        `1000000000`,
+        )
+      // console.error('result', util.inspect(result, false, 10))
+      assert.strictEqual( !!result.txId, true)
     } catch (err) {
       console.error(err)
       assert.throws(() => {}, err)

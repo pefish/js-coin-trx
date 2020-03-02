@@ -40,6 +40,12 @@ interface Transaction {
     };
     raw_data_hex: string;
 }
+interface ContractCallOpt {
+    callValue?: number;
+    feeLimit?: number;
+    _isConstant?: boolean;
+    confirmed?: boolean;
+}
 export default class Wallet {
     private fullNode;
     private solidityNode;
@@ -68,7 +74,7 @@ export default class Wallet {
     }>;
     getBalance(address: string): Promise<string>;
     getUnconfirmedBalance(address: string): Promise<string>;
-    buildTransferTokenTx(pkey: string, toAddress: string, tokenName: string, amount: string): Promise<{
+    buildTransferTokenTx(pkey: string, contractAddress: string, toAddress: string, amount: string, opts?: ContractCallOpt): Promise<{
         txId: any;
         txHex: any;
         txData: any;
@@ -88,12 +94,7 @@ export default class Wallet {
     buildContractCallTx(pkey: string, contractAddress: string, method: string, params: {
         type: string;
         value: any;
-    }[], opts?: {
-        callValue?: number;
-        feeLimit?: number;
-        _isConstant?: boolean;
-        confirmed?: boolean;
-    }): Promise<{
+    }[], opts?: ContractCallOpt): Promise<{
         txId: any;
         txHex: any;
         txData: any;

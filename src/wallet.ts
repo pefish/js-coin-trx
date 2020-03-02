@@ -44,6 +44,13 @@ interface Transaction {
   },
   raw_data_hex: string,
 }
+
+interface ContractCallOpt {
+  callValue?: number,
+  feeLimit?: number,
+  _isConstant?: boolean,
+  confirmed?: boolean,
+}
 export default class Wallet {
   private fullNode: string = `https://api.trongrid.io`
   private solidityNode: string = `https://api.trongrid.io`
@@ -111,20 +118,34 @@ export default class Wallet {
     }
   }
 
-  async getBalance (address: string): Promise<string> {
+  async getBalance(address: string): Promise<string> {
     const result = await this.tronWeb.trx.getBalance(address)
     return result.toString()
   }
 
-  async getUnconfirmedBalance (address: string): Promise<string> {
+  async getUnconfirmedBalance(address: string): Promise<string> {
     const result = await this.tronWeb.trx.getUnconfirmedBalance(address)
     return result.toString()
   }
 
-  async buildTransferTokenTx(pkey: string, toAddress: string, tokenName: string, amount: string) {
+  async buildTransferTokenTx(pkey: string, contractAddress: string, toAddress: string, amount: string, opts: ContractCallOpt = {
+    callValue: 0,
+    feeLimit: 1_000_000_000,
+    _isConstant: false,
+    confirmed: false,
+  }) {
     const { address } = this.getAllFromPkey(pkey)
-    let tx = await this.tronWeb.transactionBuilder.sendToken(toAddress, amount, tokenName, address)
-    tx = await this.tronWeb.trx.sign(tx, pkey)
+    let tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, `transfer(address,uint256)`,
+      opts,
+      [{
+        type: `address`,
+        value: toAddress,
+      }, {
+        type: `uint256`,
+        value: amount,
+      }],
+      address)
+    tx = await this.tronWeb.trx.sign(tx.transaction, pkey)
     return {
       txId: tx.txID,
       txHex: tx.raw_data_hex,
@@ -196,17 +217,12 @@ export default class Wallet {
   async buildContractCallTx(pkey: string, contractAddress: string, method: string, params: {
     type: string,
     value: any,
-  }[], opts: {
-    callValue?: number,
-    feeLimit?: number,
-    _isConstant?: boolean,
-    confirmed?: boolean,
-  } = {
-        callValue: 0,
-        feeLimit: 1_000_000_000, // 最高Energy费用限额 1000 TRX
-        _isConstant: false,
-        confirmed: false,
-      }) {
+  }[], opts: ContractCallOpt = {
+    callValue: 0,
+    feeLimit: 1_000_000_000, // 最高Energy费用限额 1000 TRX
+    _isConstant: false,
+    confirmed: false,
+  }) {
     if (!opts.feeLimit) {
       opts.feeLimit = 1_000_000_000
     }

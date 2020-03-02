@@ -50,7 +50,7 @@ export default class Wallet {
     private fullNode;
     private solidityNode;
     private tronWeb;
-    constructor();
+    constructor(timeout?: number);
     getSeedHexByMnemonic(mnemonic: string, pass?: string): string;
     getXprivBySeed(seedHex: string): string;
     isAddress(address: string): boolean;

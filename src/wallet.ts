@@ -56,8 +56,8 @@ export default class Wallet {
   private solidityNode: string = `https://api.trongrid.io`
   private tronWeb: TronWeb
 
-  constructor() {
-    this.tronWeb = new TronWeb(this.fullNode, this.solidityNode)
+  constructor(timeout: number = 60000) {
+    this.tronWeb = new TronWeb(new TronWeb.providers.HttpProvider(this.fullNode, timeout), new TronWeb.providers.HttpProvider(this.solidityNode, timeout))
   }
 
   getSeedHexByMnemonic(mnemonic: string, pass: string = ''): string {

@@ -103,7 +103,7 @@ export default class Wallet {
     value: any,
   }[], opts: {
     callValue?: number,
-    feeLimit: number,
+    feeLimit?: number,
     _isConstant?: boolean,
     confirmed?: boolean,
   } = {
@@ -112,6 +112,9 @@ export default class Wallet {
         _isConstant: false,
         confirmed: false,
       }) {
+    if (!opts.feeLimit) {
+      opts.feeLimit = 1_000_000_000
+    }
     let tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, method, opts, params, fromAddress);
     tx = await this.tronWeb.trx.sign(tx.transaction, pkey)
     return {

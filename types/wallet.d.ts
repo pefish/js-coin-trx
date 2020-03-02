@@ -40,7 +40,7 @@ export default class Wallet {
         value: any;
     }[], opts?: {
         callValue?: number;
-        feeLimit: number;
+        feeLimit?: number;
         _isConstant?: boolean;
         confirmed?: boolean;
     }): Promise<{

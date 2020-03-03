@@ -103,7 +103,7 @@ export default class Wallet {
     }
   }
 
-  @retry(3, `status code 502`, 0)
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async buildTransferTx(pkey: string, toAddress: string, amount: string): Promise<{
     txId: string,
     txHex: string,
@@ -119,13 +119,13 @@ export default class Wallet {
     }
   }
 
-  @retry(3, `status code 502`, 0)
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async getBalance(address: string): Promise<string> {
     const result: number = await this.tronWeb.trx.getBalance(address)
     return result.toString()
   }
 
-  @retry(3, `status code 502`, 0)
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async getTokenBalance(address: string, contractAddress: string): Promise<string> {
     const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, `balanceOf(address)`,
       {
@@ -145,13 +145,13 @@ export default class Wallet {
     return tx.constant_result[0].hexToDecimalString_()
   }
 
-  @retry(3, `status code 502`, 0)
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async getUnconfirmedBalance(address: string): Promise<string> {
     const result = await this.tronWeb.trx.getUnconfirmedBalance(address)
     return result.toString()
   }
 
-  @retry(3, `status code 502`, 0)
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async buildTransferTokenTx(pkey: string, contractAddress: string, toAddress: string, amount: string, opts: ContractCallOpt = {
     callValue: 0,
     feeLimit: 1_000_000_000,
@@ -178,13 +178,13 @@ export default class Wallet {
   }
 
   // 未确认的也能取到
-  @retry(3, `status code 502`, 0)
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async getTransaction(txHash: string): Promise<Transaction> {
     return await this.tronWeb.trx.getTransaction(txHash)
   }
 
   // 只能取到已确认的
-  @retry(3, `status code 502`, 0)
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async getConfirmedTransaction(txHash: string): Promise<Transaction> {
     try {
       return await this.tronWeb.trx.getConfirmedTransaction(txHash)
@@ -196,7 +196,7 @@ export default class Wallet {
     }
   }
 
-  @retry(3, `status code 502`, 0)
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async getConfirmedTransactionInfo(txHash: string): Promise<TransactionInfo> {
     const transactionInfo = await this.tronWeb.trx.getTransactionInfo(txHash)
     if (!transactionInfo || Object.keys(transactionInfo).length === 0) {
@@ -222,7 +222,7 @@ export default class Wallet {
     }
   }
 
-  @retry(3, `status code 502`, 0)
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async sendRawTxReturnErr(tx: { [x: string]: any }): Promise<Error> {
     try {
       const result = await this.tronWeb.trx.sendRawTransaction(tx)
@@ -235,7 +235,7 @@ export default class Wallet {
     }
   }
 
-  @retry(3, `status code 502`, 0)
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async sendRawTx(tx: { [x: string]: any }) {
     const err = await this.sendRawTxReturnErr(tx)
     if (err) {
@@ -243,7 +243,7 @@ export default class Wallet {
     }
   }
 
-  @retry(3, `status code 502`, 0)
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async buildContractCallTx(pkey: string, contractAddress: string, method: string, params: {
     type: string,
     value: any,

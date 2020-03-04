@@ -9,10 +9,10 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
-"@pefish/js-decorator@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@pefish/js-decorator/-/js-decorator-0.0.5.tgz#3bef597fbf8376a3cfe02d2805a4ec2d0780b6df"
-  integrity sha512-TemohCEm4MJcWfbjwpXRTdbH8iz9Usb00IFeQ6aaPl06MJft5Hni4fxoH6dKpuvPooXFSdk44zdDedbPVh3XYA==
+"@pefish/js-decorator@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@pefish/js-decorator/-/js-decorator-0.0.6.tgz#4a75b04d148e1fdc454f244720ac281cf445e77c"
+  integrity sha512-H+kmrGJnw4glAly1AbdXOzmmrSy8g+CRgKWeLM2YVnC9c1Ryibsn0ZgtW+elwYWkMJpMT9Y4uy08WoL5opZgSA==
   dependencies:
     "@pefish/js-util-time" "^0.1.0"
 

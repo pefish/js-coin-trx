@@ -11,6 +11,39 @@ describe('Wallet', () => {
     helper = new Wallet()
   })
 
+  it('decodeContractPayload', async () => {
+    try {
+      const result = helper.decodeContractPayload([
+        `address`,
+        `uint256`,
+      ], `a9059cbb00000000000000000000004131b43ffc5e49b4202f3b6e7640af9e719af71bc000000000000000000000000000000000000000000000000000000000007a1200`)
+      // console.error('result', result)
+      assert.strictEqual(result.methodIdHex, `0xa9059cbb`)
+      assert.strictEqual(result.params[0], `4131b43ffc5e49b4202f3b6e7640af9e719af71bc0`)
+      assert.strictEqual(result.params[1].toString(), `8000000`)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('encodeContractPayload', async () => {
+    try {
+      const result = helper.encodeContractPayload(`a9059cbb`, [
+        `address`,
+        `uint256`,
+      ], [
+        `TEW23SjDRLibvD1cm4MBZSpk74FdmRP6o3`,
+        `8000000`,
+      ])
+      // console.error('result', result)
+      assert.strictEqual(result, `a9059cbb00000000000000000000004131b43ffc5e49b4202f3b6e7640af9e719af71bc000000000000000000000000000000000000000000000000000000000007a1200`)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
   it('getSeedHexByMnemonic', async () => {
     try {
       const result = await helper.getSeedHexByMnemonic(`hjuygdjutyshjdeushx`)
@@ -49,6 +82,30 @@ describe('Wallet', () => {
       const result = await helper.getBalance(`TRNigEZz9Vt7PUNJkD2TbgmcaMt9PXdbnC`)
       // console.error('result', result)
       assert.strictEqual(result.gt_(0), true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('getLatestBlock', async () => {
+    try {
+      const result = await helper.getLatestBlock()
+      // console.error('result', util.inspect(result, false, 10))
+      assert.strictEqual(result.block_header.raw_data.number > 0, true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('getBlocksByRange', async () => {
+    try {
+      const blocks = await helper.getBlocksByRange(17825136, 17825140)
+      // console.error('blocks', util.inspect(blocks, false, 10))
+      for (let block of blocks) {
+        assert.strictEqual(block.block_header.raw_data.number > 0, true)
+      }
     } catch (err) {
       console.error(err)
       assert.throws(() => {}, err)
@@ -138,7 +195,7 @@ describe('Wallet', () => {
   it('getTransaction', async () => {
     try {
       const result = await helper.getTransaction(`37eb3c9fa0b9810cddc4e504fbe1d71c139d5b3ce4d402c884dc9b265538c2f2`)
-      // console.error('result', result)
+      // console.error('result', util.inspect(result, false, 10))
       assert.strictEqual(result.txID, `37eb3c9fa0b9810cddc4e504fbe1d71c139d5b3ce4d402c884dc9b265538c2f2`)
     } catch (err) {
       console.error(err)

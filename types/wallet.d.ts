@@ -1,4 +1,4 @@
-interface TransactionInfo {
+export interface TransactionInfoType {
     id: string;
     fee?: number;
     blockNumber: number;
@@ -22,7 +22,7 @@ interface TransactionInfo {
     result?: string;
     resMessage?: string;
 }
-interface Transaction {
+export interface TransactionType {
     ret?: {
         contractRet: string;
     }[];
@@ -30,8 +30,14 @@ interface Transaction {
     txID: string;
     raw_data: {
         contract: {
-            [x: string]: any;
-        };
+            parameter: {
+                value: {
+                    [x: string]: any;
+                };
+                type_url: string;
+            };
+            type: string;
+        }[];
         ref_block_bytes: string;
         ref_block_hash: string;
         expiration: number;
@@ -40,11 +46,26 @@ interface Transaction {
     };
     raw_data_hex: string;
 }
-interface ContractCallOpt {
+export interface ContractCallOpt {
     callValue?: number;
     feeLimit?: number;
     _isConstant?: boolean;
     confirmed?: boolean;
+}
+export interface BlockType {
+    blockID: string;
+    block_header: {
+        raw_data: {
+            number: number;
+            txTrieRoot: string;
+            witness_address: string;
+            parentHash: string;
+            version: number;
+            timestamp: number;
+        };
+        witness_signature: string;
+    };
+    transactions: TransactionType[];
 }
 export default class Wallet {
     private fullNode;
@@ -54,6 +75,11 @@ export default class Wallet {
     getSeedHexByMnemonic(mnemonic: string, pass?: string): string;
     getXprivBySeed(seedHex: string): string;
     isAddress(address: string): boolean;
+    decodeContractPayload(types: string[], dataStr: string): {
+        methodIdHex: string;
+        params: any[];
+    };
+    encodeContractPayload(methodIdHex: string, types: string[], params: any[]): string;
     deriveAllByXprivPath(xpriv: string, path: string): {
         xpriv: string;
         xpub: string;
@@ -80,15 +106,22 @@ export default class Wallet {
         txHex: any;
         txData: any;
     }>;
-    getTransaction(txHash: string): Promise<Transaction>;
-    getConfirmedTransaction(txHash: string): Promise<Transaction>;
-    getConfirmedTransactionInfo(txHash: string): Promise<TransactionInfo>;
+    getTransaction(txHash: string): Promise<TransactionType>;
+    getConfirmedTransaction(txHash: string): Promise<TransactionType>;
+    getConfirmedTransactionInfo(txHash: string): Promise<TransactionInfoType>;
     syncSendRawTx(tx: {
         [x: string]: any;
-    }): Promise<TransactionInfo>;
+    }): Promise<TransactionInfoType>;
     sendRawTxReturnErr(tx: {
         [x: string]: any;
     }): Promise<Error>;
+    getLatestBlock(): Promise<BlockType>;
+    /**
+     * 获取多个块 [start, end)
+     * @param start 哪个块开始
+     * @param end 哪个块结束
+     */
+    getBlocksByRange(start: number, end: number): Promise<BlockType[]>;
     sendRawTx(tx: {
         [x: string]: any;
     }): Promise<void>;
@@ -105,4 +138,3 @@ export default class Wallet {
     hexToAddress(hex: string): string;
     addressToHex(address: string): string;
 }
-export {};

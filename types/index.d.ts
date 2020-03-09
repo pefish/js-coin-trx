@@ -1,3 +1,3 @@
 import "@pefish/js-node-assist";
-import Wallet from './wallet';
-export { Wallet };
+import Wallet, { BlockType, ContractCallOpt, TransactionType, TransactionInfoType } from './wallet';
+export { Wallet, BlockType, ContractCallOpt, TransactionType, TransactionInfoType, };

@@ -4,8 +4,8 @@ import * as bip39Lib from 'bip39'
 import TronWeb from 'tronweb'
 import TimeUtil from '@pefish/js-util-time'
 import { retry } from '@pefish/js-decorator'
-
-interface TransactionInfo {
+import abiUtil from './abi'
+export interface TransactionInfoType {
   id: string,
   fee?: number, // 消耗的energy的数量
   blockNumber: number,
@@ -28,14 +28,20 @@ interface TransactionInfo {
   resMessage?: string,
 }
 
-interface Transaction {
+export interface TransactionType {
   ret?: {
     contractRet: string,
   }[],
   signature: string[],
   txID: string,
   raw_data: {
-    contract: { [x: string]: any },
+    contract: {
+      parameter: {
+        value: { [x: string]: any },
+        type_url: string,
+      },
+      type: string,
+    }[],
     ref_block_bytes: string,
     ref_block_hash: string,
     expiration: number,
@@ -45,11 +51,27 @@ interface Transaction {
   raw_data_hex: string,
 }
 
-interface ContractCallOpt {
+export interface ContractCallOpt {
   callValue?: number,
   feeLimit?: number,
   _isConstant?: boolean,
   confirmed?: boolean,
+}
+
+export interface BlockType {
+  blockID: string,
+  block_header: {
+    raw_data: {
+      number: number,
+      txTrieRoot: string,
+      witness_address: string,
+      parentHash: string,
+      version: number,
+      timestamp: number,
+    },
+    witness_signature: string,
+  },
+  transactions: TransactionType[],
 }
 export default class Wallet {
   private fullNode: string = `https://api.trongrid.io`
@@ -71,6 +93,35 @@ export default class Wallet {
 
   isAddress(address: string): boolean {
     return TronWeb.isAddress(address)
+  }
+
+  decodeContractPayload(types: string[], dataStr: string): {
+    methodIdHex: string,
+    params: any[],
+  } {
+    // dataStr = dataStr.replace(/^0x/, ``) // 有0x的话去掉
+    // return {
+    //   methodIdHex: dataStr.substr(0, 8),
+    //   params: TronWeb.utils.abi.decodeParams(types, `0x` + dataStr.substr(8)),
+    // }
+    const dataBuf = new Buffer(dataStr.replace(/^0x/, ``), `hex`)
+    const inputsBuf = dataBuf.slice(4)
+    const params = abiUtil.rawDecode(types, inputsBuf)
+    return {
+      methodIdHex: '0x' +  dataBuf.slice(0, 4).toString(`hex`),
+      params
+    }
+  }
+
+  encodeContractPayload(methodIdHex: string, types: string[], params: any[]): string {
+    methodIdHex = methodIdHex.replace(/^0x/, ``)
+    for (let i = 0; i < types.length; i++) {
+      if (types[i] === 'address') {
+        params[i] = TronWeb.address.toHex(params[i])
+      }
+    }
+    const data = abiUtil.rawEncode(types, params).toHexString_(false)
+    return methodIdHex + data
   }
 
   deriveAllByXprivPath(xpriv: string, path: string): {
@@ -179,13 +230,13 @@ export default class Wallet {
 
   // 未确认的也能取到
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
-  async getTransaction(txHash: string): Promise<Transaction> {
+  async getTransaction(txHash: string): Promise<TransactionType> {
     return await this.tronWeb.trx.getTransaction(txHash)
   }
 
   // 只能取到已确认的
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
-  async getConfirmedTransaction(txHash: string): Promise<Transaction> {
+  async getConfirmedTransaction(txHash: string): Promise<TransactionType> {
     try {
       return await this.tronWeb.trx.getConfirmedTransaction(txHash)
     } catch (err) {
@@ -197,7 +248,7 @@ export default class Wallet {
   }
 
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
-  async getConfirmedTransactionInfo(txHash: string): Promise<TransactionInfo> {
+  async getConfirmedTransactionInfo(txHash: string): Promise<TransactionInfoType> {
     const transactionInfo = await this.tronWeb.trx.getTransactionInfo(txHash)
     if (!transactionInfo || Object.keys(transactionInfo).length === 0) {
       return null
@@ -206,7 +257,7 @@ export default class Wallet {
   }
 
   // 交易确认但是失败的话，抛出错误
-  async syncSendRawTx(tx: { [x: string]: any }): Promise<TransactionInfo> {
+  async syncSendRawTx(tx: { [x: string]: any }): Promise<TransactionInfoType> {
     await this.sendRawTx(tx)
     while (true) {
       // console.log(`检查 ${tx.txID} 交易中...`)
@@ -233,6 +284,21 @@ export default class Wallet {
     } catch (err) {
       return err
     }
+  }
+
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
+  async getLatestBlock(): Promise<BlockType> {
+    return await this.tronWeb.trx.getCurrentBlock()
+  }
+
+  /**
+   * 获取多个块 [start, end)
+   * @param start 哪个块开始
+   * @param end 哪个块结束
+   */
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
+  async getBlocksByRange(start: number, end: number): Promise<BlockType[]> {
+    return await this.tronWeb.trx.getBlockRange(start, end - 1)
   }
 
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)

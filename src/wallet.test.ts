@@ -228,7 +228,7 @@ describe('Wallet', () => {
   it('getConfirmedTransactionInfo', async () => {
     try {
       const result = await helper.getConfirmedTransactionInfo(`354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
-      // console.error('result', util.inspect(result, false, 10))
+      console.error('result', util.inspect(result, false, 10))
       assert.strictEqual(result.id, `354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
     } catch (err) {
       console.error(err)

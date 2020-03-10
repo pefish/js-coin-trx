@@ -73,7 +73,7 @@ export interface BlockType {
   },
   transactions: TransactionType[],
 }
-export default class Wallet {
+export default class TrxWallet {
   private fullNode: string = `https://api.trongrid.io`
   private solidityNode: string = `https://api.trongrid.io`
   private tronWeb: TronWeb

@@ -67,7 +67,7 @@ export interface BlockType {
     };
     transactions: TransactionType[];
 }
-export default class Wallet {
+export default class TrxWallet {
     private fullNode;
     private solidityNode;
     private tronWeb;

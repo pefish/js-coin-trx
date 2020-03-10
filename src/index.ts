@@ -1,7 +1,7 @@
 import "@pefish/js-node-assist"
-import Wallet, { BlockType, ContractCallOpt, TransactionType, TransactionInfoType } from './wallet'
+import TrxWallet, { BlockType, ContractCallOpt, TransactionType, TransactionInfoType } from './wallet'
 
 export {
-  Wallet,
+  TrxWallet,
   BlockType, ContractCallOpt, TransactionType, TransactionInfoType,
 }

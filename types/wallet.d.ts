@@ -122,6 +122,7 @@ export default class Wallet {
      * @param end 哪个块结束
      */
     getBlocksByRange(start: number, end: number): Promise<BlockType[]>;
+    getBlockByNumber(number: number): Promise<BlockType>;
     sendRawTx(tx: {
         [x: string]: any;
     }): Promise<void>;

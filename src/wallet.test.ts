@@ -112,6 +112,17 @@ describe('Wallet', () => {
     }
   })
 
+  it('getBlockByNumber', async () => {
+    try {
+      const block = await helper.getBlockByNumber(17825136)
+      // console.error('block', util.inspect(block, false, 10))
+      assert.strictEqual(block.block_header.raw_data.number, 17825136)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
   it('getTokenBalance', async () => {
     try {
       const result = await helper.getTokenBalance(`TFhnc8acrgmpvVx1LyZpPbVpwAsYRDisBv`, `TCfVo9rhFqngrCbqcMy2U7uEeFXcd5EyXP`)

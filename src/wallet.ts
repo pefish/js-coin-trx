@@ -302,6 +302,11 @@ export default class Wallet {
   }
 
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
+  async getBlockByNumber(number: number): Promise<BlockType> {
+    return await this.tronWeb.trx.getBlockByNumber(number)
+  }
+
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async sendRawTx(tx: { [x: string]: any }) {
     const err = await this.sendRawTxReturnErr(tx)
     if (err) {

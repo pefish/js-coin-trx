@@ -290,12 +290,42 @@ export default class TrxWallet {
 
   // 已经确认的同样能取到信息
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
-  async getUnconfirmedTransactionInfo(txHash: string): Promise<TransactionInfoType> {
+  async getTransactionInfo(txHash: string): Promise<TransactionInfoType> {
     const transactionInfo = await this.tronWeb.trx.getUnconfirmedTransactionInfo(txHash)
     if (!transactionInfo || Object.keys(transactionInfo).length === 0) {
       return null
     }
     return transactionInfo
+  }
+
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
+  async getBandwidthBalance(address: string): Promise<string> {
+    const result = await this.tronWeb.trx.getBandwidth(address)
+    return result.toString()
+  }
+
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
+  async getAccountResources(address: string): Promise<{
+    freeNetUsed: number,  // 免费带宽的已使用量
+    freeNetLimit: number,  // 免费带宽总量
+    netUsed: number,  // 抵押带宽已使用量
+    netLimit: number, // 抵押贷款总量
+    energyUsed: number,  // 已使用能量
+    energyLimit: number,  // 总能量
+    netAvail: number,  // 可用带宽
+    energyAvail: number  // 可用能量
+  }> {
+    const result = await this.tronWeb.trx.getAccountResources(address)
+    return {
+      freeNetUsed: result.freeNetUsed,
+      freeNetLimit: result.freeNetLimit,
+      netUsed: result.NetUsed,
+      netLimit: result.NetLimit,
+      energyUsed: result.EnergyUsed,
+      energyLimit: result.EnergyLimit,
+      netAvail: result.freeNetLimit - result.freeNetUsed + result.NetLimit - result.NetUsed,
+      energyAvail: result.EnergyLimit - result.EnergyUsed,
+    }
   }
 
   // 交易确认但是失败的话，抛出错误

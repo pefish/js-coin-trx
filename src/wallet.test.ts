@@ -42,6 +42,28 @@ describe('Wallet', () => {
     }
   })
 
+  it('getBandwidthBalance', async () => {
+    try {
+      const result = await helper.getBandwidthBalance(`TRNigEZz9Vt7PUNJkD2TbgmcaMt9PXdbnC`)
+      // console.error('result', result)
+      assert.strictEqual(result.gt_(0), true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('getAccountResources', async () => {
+    try {
+      const result = await helper.getAccountResources(`TRNigEZz9Vt7PUNJkD2TbgmcaMt9PXdbnC`)
+      // console.error('result', result)
+      assert.strictEqual(result.netAvail > 0, true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
   it('encodeContractPayload', async () => {
     try {
       const result = helper.encodeContractPayload(`a9059cbb`, [
@@ -281,7 +303,7 @@ describe('Wallet', () => {
 
   it('getUnconfirmedTransactionInfo', async () => {
     try {
-      const result = await helper.getUnconfirmedTransactionInfo(`354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
+      const result = await helper.getTransactionInfo(`354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
       // console.error('result', util.inspect(result, false, 10))
       assert.strictEqual(result.id, `354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
     } catch (err) {

@@ -118,7 +118,18 @@ export default class TrxWallet {
     getTransaction(txHash: string): Promise<TransactionType>;
     getConfirmedTransaction(txHash: string): Promise<TransactionType>;
     getConfirmedTransactionInfo(txHash: string): Promise<TransactionInfoType>;
-    getUnconfirmedTransactionInfo(txHash: string): Promise<TransactionInfoType>;
+    getTransactionInfo(txHash: string): Promise<TransactionInfoType>;
+    getBandwidthBalance(address: string): Promise<string>;
+    getAccountResources(address: string): Promise<{
+        freeNetUsed: number;
+        freeNetLimit: number;
+        netUsed: number;
+        netLimit: number;
+        energyUsed: number;
+        energyLimit: number;
+        netAvail: number;
+        energyAvail: number;
+    }>;
     syncSendRawTx(tx: {
         [x: string]: any;
     }): Promise<TransactionInfoType>;

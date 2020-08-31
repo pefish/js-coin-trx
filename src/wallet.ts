@@ -160,6 +160,12 @@ export default class TrxWallet {
     }
   }
 
+  /**
+   * 构建转账TRX的交易
+   * @param pkey 
+   * @param toAddress 
+   * @param amount 最小单位
+   */
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async buildTransferTx(pkey: string, toAddress: string, amount: string): Promise<{
     txId: string,

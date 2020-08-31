@@ -13,7 +13,7 @@ export interface TransactionInfoType {
     };
     log?: {
         address: string;
-        topics: any[][];
+        topics: any[];
         data: string;
     }[];
     internal_transactions?: {

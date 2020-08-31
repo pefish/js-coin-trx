@@ -27,6 +27,21 @@ describe('Wallet', () => {
     }
   })
 
+  it('decodeParams', async () => {
+    try {
+      const result = helper.decodeParams([
+        `address`,
+        `uint256`,
+      ], `00000000000000000000004131b43ffc5e49b4202f3b6e7640af9e719af71bc000000000000000000000000000000000000000000000000000000000007a1200`)
+      // console.error('result', result)
+      assert.strictEqual(result[0], `4131b43ffc5e49b4202f3b6e7640af9e719af71bc0`)
+      assert.strictEqual(result[1].toString(), `8000000`)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
   it('encodeContractPayload', async () => {
     try {
       const result = helper.encodeContractPayload(`a9059cbb`, [
@@ -38,6 +53,23 @@ describe('Wallet', () => {
       ])
       // console.error('result', result)
       assert.strictEqual(result, `a9059cbb00000000000000000000004131b43ffc5e49b4202f3b6e7640af9e719af71bc000000000000000000000000000000000000000000000000000000000007a1200`)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('encodeParams', async () => {
+    try {
+      const result = helper.encodeParams([
+        `address`,
+        `uint256`,
+      ], [
+        `TEW23SjDRLibvD1cm4MBZSpk74FdmRP6o3`,
+        `8000000`,
+      ])
+      // console.error('result', result)
+      assert.strictEqual(result, `00000000000000000000004131b43ffc5e49b4202f3b6e7640af9e719af71bc000000000000000000000000000000000000000000000000000000000007a1200`)
     } catch (err) {
       console.error(err)
       assert.throws(() => {}, err)
@@ -250,7 +282,7 @@ describe('Wallet', () => {
   it('getUnconfirmedTransactionInfo', async () => {
     try {
       const result = await helper.getUnconfirmedTransactionInfo(`354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
-      console.error('result', util.inspect(result, false, 10))
+      // console.error('result', util.inspect(result, false, 10))
       assert.strictEqual(result.id, `354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
     } catch (err) {
       console.error(err)

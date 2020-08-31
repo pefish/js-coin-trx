@@ -105,11 +105,6 @@ export default class TrxWallet {
     methodIdHex: string,
     params: any[],
   } {
-    // dataStr = dataStr.replace(/^0x/, ``) // 有0x的话去掉
-    // return {
-    //   methodIdHex: dataStr.substr(0, 8),
-    //   params: TronWeb.utils.abi.decodeParams(types, `0x` + dataStr.substr(8)),
-    // }
     const dataBuf = new Buffer(dataStr.replace(/^0x/, ``), `hex`)
     const inputsBuf = dataBuf.slice(4)
     const params = abiUtil.rawDecode(types, inputsBuf)
@@ -117,6 +112,11 @@ export default class TrxWallet {
       methodIdHex: '0x' +  dataBuf.slice(0, 4).toString(`hex`),
       params
     }
+  }
+
+  decodeParams(types: string[], paramsStr: string): any[] {
+    const dataBuf = new Buffer(paramsStr.replace(/^0x/, ``), `hex`)
+    return abiUtil.rawDecode(types, dataBuf)
   }
 
   encodeContractPayload(methodIdHex: string, types: string[], params: any[]): string {
@@ -128,6 +128,16 @@ export default class TrxWallet {
     }
     const data = abiUtil.rawEncode(types, params).toHexString_(false)
     return methodIdHex + data
+  }
+
+  encodeParams(types: string[], params: any[]): string {
+    for (let i = 0; i < types.length; i++) {
+      if (types[i] === 'address') {
+        params[i] = TronWeb.address.toHex(params[i])
+      }
+    }
+    const data = abiUtil.rawEncode(types, params).toHexString_(false)
+    return data
   }
 
   deriveAllByXprivPath(xpriv: string, path: string): {

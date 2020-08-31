@@ -79,7 +79,9 @@ export default class TrxWallet {
         methodIdHex: string;
         params: any[];
     };
+    decodeParams(types: string[], paramsStr: string): any[];
     encodeContractPayload(methodIdHex: string, types: string[], params: any[]): string;
+    encodeParams(types: string[], params: any[]): string;
     deriveAllByXprivPath(xpriv: string, path: string): {
         xpriv: string;
         xpub: string;
@@ -91,6 +93,12 @@ export default class TrxWallet {
         publicKey: string;
         address: string;
     };
+    /**
+     * 构建转账TRX的交易
+     * @param pkey
+     * @param toAddress
+     * @param amount 最小单位
+     */
     buildTransferTx(pkey: string, toAddress: string, amount: string): Promise<{
         txId: string;
         txHex: string;

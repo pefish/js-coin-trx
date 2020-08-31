@@ -49,8 +49,6 @@ export interface TransactionType {
 export interface ContractCallOpt {
     callValue?: number;
     feeLimit?: number;
-    _isConstant?: boolean;
-    confirmed?: boolean;
 }
 export interface BlockType {
     blockID: string;
@@ -71,7 +69,9 @@ export default class TrxWallet {
     private fullNode;
     private solidityNode;
     private tronWeb;
+    private timeout;
     constructor(timeout?: number);
+    setNode(fullNode: string, solidityNode: string): void;
     getSeedHexByMnemonic(mnemonic: string, pass?: string): string;
     getXprivBySeed(seedHex: string): string;
     isAddress(address: string): boolean;
@@ -100,6 +100,7 @@ export default class TrxWallet {
     }>;
     getBalance(address: string): Promise<string>;
     getTokenBalance(address: string, contractAddress: string): Promise<string>;
+    getUnconfirmedTokenBalance(address: string, contractAddress: string): Promise<string>;
     getUnconfirmedBalance(address: string): Promise<string>;
     buildTransferTokenTx(pkey: string, contractAddress: string, toAddress: string, amount: string, opts?: ContractCallOpt): Promise<{
         txId: any;
@@ -109,6 +110,7 @@ export default class TrxWallet {
     getTransaction(txHash: string): Promise<TransactionType>;
     getConfirmedTransaction(txHash: string): Promise<TransactionType>;
     getConfirmedTransactionInfo(txHash: string): Promise<TransactionInfoType>;
+    getUnconfirmedTransactionInfo(txHash: string): Promise<TransactionInfoType>;
     syncSendRawTx(tx: {
         [x: string]: any;
     }): Promise<TransactionInfoType>;

@@ -126,7 +126,18 @@ describe('Wallet', () => {
   it('getTokenBalance', async () => {
     try {
       const result = await helper.getTokenBalance(`TFhnc8acrgmpvVx1LyZpPbVpwAsYRDisBv`, `TCfVo9rhFqngrCbqcMy2U7uEeFXcd5EyXP`)
-      // console.error('result', result)
+      console.error('result', result)
+      // assert.strictEqual(result.gt_(0), true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('getUnconfirmedTokenBalance', async () => {
+    try {
+      const result = await helper.getUnconfirmedTokenBalance(`TFhnc8acrgmpvVx1LyZpPbVpwAsYRDisBv`, `TCfVo9rhFqngrCbqcMy2U7uEeFXcd5EyXP`)
+      console.error('result', result)
       // assert.strictEqual(result.gt_(0), true)
     } catch (err) {
       console.error(err)
@@ -236,6 +247,17 @@ describe('Wallet', () => {
     }
   })
 
+  it('getUnconfirmedTransactionInfo', async () => {
+    try {
+      const result = await helper.getUnconfirmedTransactionInfo(`354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
+      console.error('result', util.inspect(result, false, 10))
+      assert.strictEqual(result.id, `354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
   // it('buildTransferTx', async () => {
   //   try {
   //     const result = await helper.buildTransferTx(
@@ -281,7 +303,7 @@ describe('Wallet', () => {
         `TNxg4zPNzQRnVt6JFHRwc6Wf1LepSkhB3H`,
         `1000000000`,
         )
-      // console.error('result', util.inspect(result, false, 10))
+      console.error('result', util.inspect(result, false, 10))
       assert.strictEqual( !!result.txId, true)
     } catch (err) {
       console.error(err)

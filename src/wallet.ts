@@ -54,8 +54,6 @@ export interface TransactionType {
 export interface ContractCallOpt {
   callValue?: number,
   feeLimit?: number,
-  _isConstant?: boolean,
-  confirmed?: boolean,
 }
 
 export interface BlockType {
@@ -74,12 +72,20 @@ export interface BlockType {
   transactions: TransactionType[],
 }
 export default class TrxWallet {
-  private fullNode: string = `https://api.trongrid.io`
+  private fullNode: string = `https://api.trongrid.io`  // https://api.tronstack.io
   private solidityNode: string = `https://api.trongrid.io`
   private tronWeb: TronWeb
+  private timeout: number
 
   constructor(timeout: number = 60000) {
-    this.tronWeb = new TronWeb(new TronWeb.providers.HttpProvider(this.fullNode, timeout), new TronWeb.providers.HttpProvider(this.solidityNode, timeout))
+    this.timeout = timeout
+    this.tronWeb = new TronWeb(new TronWeb.providers.HttpProvider(this.fullNode, this.timeout), new TronWeb.providers.HttpProvider(this.solidityNode, this.timeout))
+  }
+
+  setNode (fullNode: string, solidityNode: string) {
+    this.fullNode = fullNode
+    this.solidityNode = solidityNode
+    this.tronWeb = new TronWeb(new TronWeb.providers.HttpProvider(this.fullNode, this.timeout), new TronWeb.providers.HttpProvider(this.solidityNode, this.timeout))
   }
 
   getSeedHexByMnemonic(mnemonic: string, pass: string = ''): string {
@@ -170,21 +176,17 @@ export default class TrxWallet {
     }
   }
 
+  // 获取trx余额（已经确认的）
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async getBalance(address: string): Promise<string> {
     const result: number = await this.tronWeb.trx.getBalance(address)
     return result.toString()
   }
 
+  // 获取token余额（已经确认的）
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async getTokenBalance(address: string, contractAddress: string): Promise<string> {
-    const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, `balanceOf(address)`,
-      {
-        callValue: 0,
-        feeLimit: 1_000_000_000,
-        _isConstant: true,
-        confirmed: false,
-      },
+    const tx = await this.tronWeb.transactionBuilder.triggerConfirmedConstantContract(contractAddress, `balanceOf(address)`, {},
       [{
         type: `address`,
         value: address,
@@ -196,6 +198,22 @@ export default class TrxWallet {
     return tx.constant_result[0].hexToDecimalString_()
   }
 
+  // 获取token余额（包括还没有确认的）
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
+  async getUnconfirmedTokenBalance(address: string, contractAddress: string): Promise<string> {
+    const tx = await this.tronWeb.transactionBuilder.triggerConstantContract(contractAddress, `balanceOf(address)`, {},
+      [{
+        type: `address`,
+        value: address,
+      }],
+      address)
+    if (!tx.result.result) {
+      throw new Error(`result is false`)
+    }
+    return tx.constant_result[0].hexToDecimalString_()
+  }
+
+  // 获取trx余额（包括还没有确认的）
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async getUnconfirmedBalance(address: string): Promise<string> {
     const result = await this.tronWeb.trx.getUnconfirmedBalance(address)
@@ -206,8 +224,6 @@ export default class TrxWallet {
   async buildTransferTokenTx(pkey: string, contractAddress: string, toAddress: string, amount: string, opts: ContractCallOpt = {
     callValue: 0,
     feeLimit: 1_000_000_000,
-    _isConstant: false,
-    confirmed: false,
   }) {
     const { address } = this.getAllFromPkey(pkey)
     let tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, `transfer(address,uint256)`,
@@ -250,6 +266,16 @@ export default class TrxWallet {
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async getConfirmedTransactionInfo(txHash: string): Promise<TransactionInfoType> {
     const transactionInfo = await this.tronWeb.trx.getTransactionInfo(txHash)
+    if (!transactionInfo || Object.keys(transactionInfo).length === 0) {
+      return null
+    }
+    return transactionInfo
+  }
+
+  // 已经确认的同样能取到信息
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
+  async getUnconfirmedTransactionInfo(txHash: string): Promise<TransactionInfoType> {
+    const transactionInfo = await this.tronWeb.trx.getUnconfirmedTransactionInfo(txHash)
     if (!transactionInfo || Object.keys(transactionInfo).length === 0) {
       return null
     }
@@ -321,8 +347,6 @@ export default class TrxWallet {
   }[], opts: ContractCallOpt = {
     callValue: 0,
     feeLimit: 1_000_000_000, // 最高Energy费用限额 1000 TRX
-    _isConstant: false,
-    confirmed: false,
   }) {
     if (!opts.feeLimit) {
       opts.feeLimit = 1_000_000_000

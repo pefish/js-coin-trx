@@ -316,6 +316,9 @@ export default class TrxWallet {
     energyAvail: number  // 可用能量
   }> {
     const result = await this.tronWeb.trx.getAccountResources(address)
+    if (result.freeNetUsed === undefined) {
+      result.freeNetUsed = 0
+    }
     return {
       freeNetUsed: result.freeNetUsed,
       freeNetLimit: result.freeNetLimit,

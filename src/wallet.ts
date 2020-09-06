@@ -319,6 +319,33 @@ export default class TrxWallet {
     if (result.freeNetUsed === undefined) {
       result.freeNetUsed = 0
     }
+    if (result.freeNetLimit === undefined) {
+      result.freeNetLimit = 0
+    }
+    if (result.TotalNetLimit === undefined) {
+      result.TotalNetLimit = 0
+    }
+    if (result.TotalNetWeight === undefined) {
+      result.TotalNetWeight = 0
+    }
+    if (result.EnergyUsed === undefined) {
+      result.EnergyUsed = 0
+    }
+    if (result.EnergyLimit === undefined) {
+      result.EnergyLimit = 0
+    }
+    if (result.TotalEnergyLimit === undefined) {
+      result.TotalEnergyLimit = 0
+    }
+    if (result.TotalEnergyWeight === undefined) {
+      result.TotalEnergyWeight = 0
+    }
+    if (result.NetUsed === undefined) {
+      result.NetUsed = 0
+    }
+    if (result.NetLimit === undefined) {
+      result.NetLimit = 0
+    }
     return {
       freeNetUsed: result.freeNetUsed,
       freeNetLimit: result.freeNetLimit,

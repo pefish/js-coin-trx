@@ -55,9 +55,9 @@ describe('Wallet', () => {
 
   it('getAccountResources', async () => {
     try {
-      const result = await helper.getAccountResources(`TRNigEZz9Vt7PUNJkD2TbgmcaMt9PXdbnC`)
+      const result = await helper.getAccountResources(`TMg7zRkNUpjY5c7NFqQt6hWoYAHSr8Co94`)
       // console.error('result', result)
-      assert.strictEqual(result.netAvail > 0, true)
+      assert.strictEqual(result.netAvail >= 0, true)
     } catch (err) {
       console.error(err)
       assert.throws(() => {}, err)

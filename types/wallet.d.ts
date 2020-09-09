@@ -71,7 +71,7 @@ export default class TrxWallet {
     private tronWeb;
     private timeout;
     constructor(timeout?: number);
-    setNode(fullNode: string, solidityNode: string): void;
+    setNode(node: string): void;
     getSeedHexByMnemonic(mnemonic: string, pass?: string): string;
     getXprivBySeed(seedHex: string): string;
     isAddress(address: string): boolean;

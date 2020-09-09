@@ -82,9 +82,9 @@ export default class TrxWallet {
     this.tronWeb = new TronWeb(new TronWeb.providers.HttpProvider(this.fullNode, this.timeout), new TronWeb.providers.HttpProvider(this.solidityNode, this.timeout))
   }
 
-  setNode (fullNode: string, solidityNode: string) {
-    this.fullNode = fullNode
-    this.solidityNode = solidityNode
+  setNode (node: string) {
+    this.fullNode = node
+    this.solidityNode = node
     this.tronWeb = new TronWeb(new TronWeb.providers.HttpProvider(this.fullNode, this.timeout), new TronWeb.providers.HttpProvider(this.solidityNode, this.timeout))
   }
 

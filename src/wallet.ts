@@ -229,6 +229,25 @@ export default class TrxWallet {
     return tx.constant_result[0].hexToDecimalString_()
   }
 
+  @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
+  async callViewMethod(fromAddress: string, contractAddress: string, method: string, params: {
+    type: string,
+    value: string,
+  }[]): Promise<string[]> {
+    const tx = await this.tronWeb.transactionBuilder.triggerConstantContract(
+      contractAddress, 
+      method, 
+      {},
+      params,
+      fromAddress,
+    )
+    console.log(tx)
+    if (!tx.result.result) {
+      throw new Error(`result is false`)
+    }
+    return tx.constant_result
+  }
+
   // 获取trx余额（包括还没有确认的）
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async getUnconfirmedBalance(address: string): Promise<string> {

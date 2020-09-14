@@ -109,6 +109,10 @@ export default class TrxWallet {
     getBalance(address: string): Promise<string>;
     getTokenBalance(address: string, contractAddress: string): Promise<string>;
     getUnconfirmedTokenBalance(address: string, contractAddress: string): Promise<string>;
+    callViewMethod(fromAddress: string, contractAddress: string, method: string, params: {
+        type: string;
+        value: string;
+    }[]): Promise<string[]>;
     getUnconfirmedBalance(address: string): Promise<string>;
     buildTransferTokenTx(pkey: string, contractAddress: string, toAddress: string, amount: string, opts?: ContractCallOpt): Promise<{
         txId: any;

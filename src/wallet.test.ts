@@ -64,6 +64,22 @@ describe('Wallet', () => {
     }
   })
 
+  it('callViewMethod', async () => {
+    try {
+      const results = await helper.callViewMethod("TVEsafCvMuM38PP1Zux4tg14vVCdgRUYZk", "TM9797VRM66LyKXq2TbxP1sNmuQWBrsnYw", "balanceOf(address)", [
+        {
+          type: "address",
+          value: "TVEsafCvMuM38PP1Zux4tg14vVCdgRUYZk",
+        }
+      ])
+      // console.error('result', result)
+      assert.strictEqual(results.length > 0, true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
   it('encodeContractPayload', async () => {
     try {
       const result = helper.encodeContractPayload(`a9059cbb`, [

@@ -5,6 +5,9 @@ import TronWeb from 'tronweb'
 import TimeUtil from '@pefish/js-util-time'
 import { retry } from '@pefish/js-decorator'
 import abiUtil from './abi'
+import util from 'util'
+
+
 export interface TransactionInfoType {
   id: string,
   fee?: number, // 消耗的energy的数量
@@ -82,7 +85,7 @@ export default class TrxWallet {
     this.tronWeb = new TronWeb(new TronWeb.providers.HttpProvider(this.fullNode, this.timeout), new TronWeb.providers.HttpProvider(this.solidityNode, this.timeout))
   }
 
-  setNode (node: string) {
+  setNode(node: string) {
     this.fullNode = node
     this.solidityNode = node
     this.tronWeb = new TronWeb(new TronWeb.providers.HttpProvider(this.fullNode, this.timeout), new TronWeb.providers.HttpProvider(this.solidityNode, this.timeout))
@@ -109,7 +112,7 @@ export default class TrxWallet {
     const inputsBuf = dataBuf.slice(4)
     const params = abiUtil.rawDecode(types, inputsBuf)
     return {
-      methodIdHex: '0x' +  dataBuf.slice(0, 4).toString(`hex`),
+      methodIdHex: '0x' + dataBuf.slice(0, 4).toString(`hex`),
       params
     }
   }
@@ -235,8 +238,8 @@ export default class TrxWallet {
     value: string,
   }[]): Promise<string[]> {
     const tx = await this.tronWeb.transactionBuilder.triggerConstantContract(
-      contractAddress, 
-      method, 
+      contractAddress,
+      method,
       {},
       params,
       fromAddress,
@@ -374,6 +377,65 @@ export default class TrxWallet {
       energyLimit: result.EnergyLimit,
       netAvail: result.freeNetLimit - result.freeNetUsed + result.NetLimit - result.NetUsed,
       energyAvail: result.EnergyLimit - result.EnergyUsed,
+    }
+  }
+
+  // 创建修改地址权限的交易（只有owner才有这个权限）。收取100个TRX作为手续费
+  async buildModifyAddressPermissionTx(ownerPk: string, activeThreshold: number, activeKeys: {
+    address: string,
+    weight: number,
+  }[], ownerThreshold?: number, ownerKeys?: {
+    address: string,
+    weight: number,
+  }[]) {
+    for (let i = 0; i < activeKeys.length; i++) {
+      if (activeKeys[i].address.startsWith("T")) {
+        activeKeys[i].address = this.addressToHex(activeKeys[i].address)
+      }
+    }
+    if (ownerKeys) {
+      for (let i = 0; i < ownerKeys.length; i++) {
+        if (ownerKeys[i].address.startsWith("T")) {
+          ownerKeys[i].address = this.addressToHex(ownerKeys[i].address)
+        }
+      }
+    }
+    
+
+    const { address } = await this.getAllFromPkey(ownerPk)
+    let ownerAddress: string = address
+    let ownerPermission = { 
+      type: 0, 
+      permission_name: 'owner',
+      threshold: ownerThreshold || 1,
+      keys: ownerKeys || [
+        { 
+          address: this.addressToHex(ownerAddress),
+          weight: 1 
+        },
+      ]
+    }
+
+    let activePermission = {
+      id: 2,
+      type: 2,
+      permission_name: 'active',
+      threshold: activeThreshold,
+      operations: "7fff1fc0033e0300000000000000000000000000000000000000000000000000",
+      keys: activeKeys,
+    }
+
+    let updateTransactionTx = await this.tronWeb.transactionBuilder.updateAccountPermissions(
+      this.addressToHex(ownerAddress), 
+      ownerPermission, 
+      null, 
+      [activePermission],
+    )
+    updateTransactionTx = await this.tronWeb.trx.sign(updateTransactionTx, ownerPk)
+    return {
+      txId: updateTransactionTx.txID,
+      txHex: updateTransactionTx.raw_data_hex,
+      txData: updateTransactionTx,
     }
   }
 

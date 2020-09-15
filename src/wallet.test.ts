@@ -80,6 +80,30 @@ describe('Wallet', () => {
     }
   })
 
+  it('buildModifyAddressPermissionTx', async () => {
+    try {
+      const result = await helper.buildModifyAddressPermissionTx("c5e290a7fad4894439fae156b2ef7981bb3cc67c8da9912c4f904fa827f923db", 2, [
+        {
+          address: "TMg7zRkNUpjY5c7NFqQt6hWoYAHSr8Co94",
+          weight: 1,
+        },
+        {
+          address: "TRNigEZz9Vt7PUNJkD2TbgmcaMt9PXdbnC",
+          weight: 1,
+        },
+        {
+          address: "TWNnW2XVwp38B2xUzsgWRFnDCXTEN8vvjY",
+          weight: 1,
+        },
+      ])
+      // console.error('result', result.txData)
+      assert.strictEqual(!!result.txData, true)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
   it('encodeContractPayload', async () => {
     try {
       const result = helper.encodeContractPayload(`a9059cbb`, [

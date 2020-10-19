@@ -8,6 +8,21 @@ import abiUtil from './abi'
 import util from 'util'
 
 
+export interface AbiElementType {
+  constant: boolean,
+  inputs: {
+    name: string,
+    type: string,
+  }[],
+  name: string,
+  outputs: {
+    name: string,
+    type: string,
+  }[],
+  payable: boolean,
+  stateMutability: string,
+  type: string,
+}
 export interface TransactionInfoType {
   id: string,
   fee?: number, // 消耗的energy的数量
@@ -179,19 +194,31 @@ export default class TrxWallet {
 
   /**
    * 构建转账TRX的交易
-   * @param pkey 
+   * @param pkey 设置为空字符串，则是使用插件钱包签名，这时from必须指定
+   * @param from 设置为空字符串的话，pkey必须指定，且from使用pkey对应的address
    * @param toAddress 
    * @param amount 最小单位
    */
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
-  async buildTransferTx(pkey: string, toAddress: string, amount: string): Promise<{
+  async buildTransferTx(pkey: string, from: string, toAddress: string, amount: string): Promise<{
     txId: string,
     txHex: string,
     txData: { [x: string]: any },
   }> {
-    const { address } = this.getAllFromPkey(pkey)
-    let tx = await this.tronWeb.transactionBuilder.sendTrx(toAddress, amount, address)
-    tx = await this.tronWeb.trx.sign(tx, pkey)
+    let tx
+    if (!pkey) {
+      if (!from) {
+        throw new Error("pkey和from必须指定一个")
+      }
+      tx = await this.tronWeb.transactionBuilder.sendTrx(toAddress, amount, from)
+      tx = await this.tronWeb.trx.sign(tx)
+      
+    } else {
+      const { address } = this.getAllFromPkey(pkey)
+      tx = await this.tronWeb.transactionBuilder.sendTrx(toAddress, amount, address)
+      tx = await this.tronWeb.trx.sign(tx, pkey)
+    }
+    
     return {
       txId: tx.txID,
       txHex: tx.raw_data_hex,
@@ -237,21 +264,49 @@ export default class TrxWallet {
   }
 
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
-  async callViewMethod(fromAddress: string, contractAddress: string, method: string, params: {
-    type: string,
-    value: string,
-  }[]): Promise<string[]> {
+  async callContractViewMethod(abi: AbiElementType[], contractAddress: string, methodName: string, params: any[], from: string, opts: ContractCallOpt = {}): Promise<any[]> {
+    let targetFuncDefine: AbiElementType = null
+    for (const a of abi) {
+      if (a.name === methodName) {
+        targetFuncDefine = a
+      }
+    }
+    if (!targetFuncDefine) {
+      throw new Error("合约方法没有被定义")
+    }
+    if (targetFuncDefine.stateMutability !== "view") {
+      throw new Error("合约方法不是view方法")
+    }
+    const method = `${methodName}(${targetFuncDefine.inputs.map((a) => {
+      return a.type
+    }).join(",")})`
+
+    const newParams: {
+      type: string,
+      value: string
+    }[] = []
+    for (let i = 0; i < targetFuncDefine.inputs.length; i++) {
+      newParams.push({
+        type: targetFuncDefine.inputs[i].type,
+        value: params[i]
+      })
+    }
     const tx = await this.tronWeb.transactionBuilder.triggerConstantContract(
       contractAddress,
       method,
-      {},
-      params,
-      fromAddress,
+      opts,
+      newParams,
+      from,
     )
     if (!tx.result.result) {
       throw new Error(`result is false`)
     }
-    return tx.constant_result
+    const result = tx.constant_result
+    for (let i = 0; i < targetFuncDefine.outputs.length; i++) {
+      result[targetFuncDefine.outputs[i].name] = this.decodeParams([targetFuncDefine.outputs[i].type], result[i])[0].toString(10)
+      result[i] = result[targetFuncDefine.outputs[i].name]
+    }
+    return result
   }
 
   // 获取trx余额（包括还没有确认的）
@@ -261,23 +316,48 @@ export default class TrxWallet {
     return result.toString()
   }
 
+  /**
+   * 构建转账token的交易
+   * @param pkey 设置为空字符串，则是使用插件钱包签名，这时from必须指定
+   * @param contractAddress 
+   * @param toAddress 
+   * @param amount
+   * @param from 设置为空字符串的话，pkey必须指定，且from使用pkey对应的address
+   * @param opts 
+   */
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
-  async buildTransferTokenTx(pkey: string, contractAddress: string, toAddress: string, amount: string, opts: ContractCallOpt = {
-    callValue: 0,
-    feeLimit: 1_000_000_000,
-  }) {
-    const { address } = this.getAllFromPkey(pkey)
-    let tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, `transfer(address,uint256)`,
-      opts,
-      [{
-        type: `address`,
-        value: toAddress,
-      }, {
-        type: `uint256`,
-        value: amount,
-      }],
-      address)
-    tx = await this.tronWeb.trx.sign(tx.transaction, pkey)
+  async buildTransferTokenTx(pkey: string, contractAddress: string, toAddress: string, amount: string, from: string, opts: ContractCallOpt = {}) {
+    let tx
+    if (!pkey) {
+      if (!from) {
+        throw new Error("pkey和from必须指定一个")
+      }
+      tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, `transfer(address,uint256)`,
+        opts,
+        [{
+          type: `address`,
+          value: toAddress,
+        }, {
+          type: `uint256`,
+          value: amount,
+        }],
+        from)
+      tx = await this.tronWeb.trx.sign(tx.transaction)
+    } else {
+      const { address } = this.getAllFromPkey(pkey)
+      tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, `transfer(address,uint256)`,
+        opts,
+        [{
+          type: `address`,
+          value: toAddress,
+        }, {
+          type: `uint256`,
+          value: amount,
+        }],
+        address)
+      tx = await this.tronWeb.trx.sign(tx.transaction, pkey)
+    }
+
     return {
       txId: tx.txID,
       txHex: tx.raw_data_hex,
@@ -511,20 +591,44 @@ export default class TrxWallet {
     }
   }
 
+  /**
+   * 构建调用合约的交易
+   * @param pkey 设置为空字符串，则是使用插件钱包签名，这时from必须指定
+   * @param contractAddress 
+   * @param methodFullName 
+   * @param params 
+   * @param from 设置为空字符串的话，pkey必须指定，且from使用pkey对应的address
+   * @param opts 
+   */
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
-  async buildContractCallTx(pkey: string, contractAddress: string, method: string, params: {
-    type: string,
-    value: any,
-  }[], opts: ContractCallOpt = {
-    callValue: 0,
-    feeLimit: 1_000_000_000, // 最高Energy费用限额 1000 TRX
-  }) {
-    if (!opts.feeLimit) {
-      opts.feeLimit = 1_000_000_000
+  async buildCallContractTx(pkey: string, contractAddress: string, methodFullName: string, params: any[], from: string, opts: ContractCallOpt = {}) {
+    const inputTypes = methodFullName.substring(methodFullName.lastIndexOf("(") + 1, methodFullName.lastIndexOf(")")).split(",").map((a) => {
+      return a.trim()
+    })
+    const newParams: {
+      type: string,
+      value: string
+    }[] = []
+    for (let i = 0; i < inputTypes.length; i++) {
+      newParams.push({
+        type: inputTypes[i],
+        value: params[i]
+      })
     }
-    const { address } = this.getAllFromPkey(pkey)
-    let tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, method, opts, params, address);
-    tx = await this.tronWeb.trx.sign(tx.transaction, pkey)
+
+    let tx
+    if (!pkey) {
+      if (!from) {
+        throw new Error("pkey和from必须指定一个")
+      }
+      tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, methodFullName, opts, newParams, from);
+      tx = await this.tronWeb.trx.sign(tx.transaction)
+      
+    } else {
+      const { address } = this.getAllFromPkey(pkey)
+      tx = await this.tronWeb.transactionBuilder.triggerSmartContract(contractAddress, methodFullName, opts, newParams, address);
+      tx = await this.tronWeb.trx.sign(tx.transaction, pkey)
+    }
     return {
       txId: tx.txID,
       txHex: tx.raw_data_hex,

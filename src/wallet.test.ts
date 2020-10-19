@@ -64,16 +64,34 @@ describe('Wallet', () => {
     }
   })
 
-  it('callViewMethod', async () => {
+  it('callContractViewMethod', async () => {
     try {
-      const results = await helper.callViewMethod("TVEsafCvMuM38PP1Zux4tg14vVCdgRUYZk", "TM9797VRM66LyKXq2TbxP1sNmuQWBrsnYw", "balanceOf(address)", [
+      const result = await helper.callContractViewMethod([
         {
-          type: "address",
-          value: "TVEsafCvMuM38PP1Zux4tg14vVCdgRUYZk",
+          "constant":true,
+          "inputs":[
+              {
+                  "name":"account",
+                  "type":"address"
+              }
+          ],
+          "name":"balanceOf",
+          "outputs":[
+              {
+                  "name":"balance",
+                  "type":"uint256"
+              }
+          ],
+          "payable":false,
+          "stateMutability":"view",
+          "type":"function"
         }
-      ])
+      ], "TM9797VRM66LyKXq2TbxP1sNmuQWBrsnYw", "balanceOf", [
+        "TVEsafCvMuM38PP1Zux4tg14vVCdgRUYZk"
+      ], "TVEsafCvMuM38PP1Zux4tg14vVCdgRUYZk")
       // console.error('result', result)
-      assert.strictEqual(results.length > 0, true)
+      assert.strictEqual(result["balance"].length > 0, true)
+      assert.strictEqual(result[0].length > 0, true)
     } catch (err) {
       console.error(err)
       assert.throws(() => {}, err)
@@ -220,7 +238,7 @@ describe('Wallet', () => {
   it('getTokenBalance', async () => {
     try {
       const result = await helper.getTokenBalance(`TFhnc8acrgmpvVx1LyZpPbVpwAsYRDisBv`, `TCfVo9rhFqngrCbqcMy2U7uEeFXcd5EyXP`)
-      console.error('result', result)
+      // console.error('result', result)
       // assert.strictEqual(result.gt_(0), true)
     } catch (err) {
       console.error(err)
@@ -231,7 +249,7 @@ describe('Wallet', () => {
   it('getUnconfirmedTokenBalance', async () => {
     try {
       const result = await helper.getUnconfirmedTokenBalance(`TFhnc8acrgmpvVx1LyZpPbVpwAsYRDisBv`, `TCfVo9rhFqngrCbqcMy2U7uEeFXcd5EyXP`)
-      console.error('result', result)
+      // console.error('result', result)
       // assert.strictEqual(result.gt_(0), true)
     } catch (err) {
       console.error(err)
@@ -333,7 +351,7 @@ describe('Wallet', () => {
   it('getConfirmedTransactionInfo', async () => {
     try {
       const result = await helper.getConfirmedTransactionInfo(`354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
-      console.error('result', util.inspect(result, false, 10))
+      // console.error('result', util.inspect(result, false, 10))
       assert.strictEqual(result.id, `354eb2d84c05a0951bed402ca1251384f2e0c67f3b41a26cfc1c4761f1032808`)
     } catch (err) {
       console.error(err)
@@ -367,19 +385,17 @@ describe('Wallet', () => {
   //   }
   // })
 
-  it('buildContractCallTx', async () => {
+  it('buildCallContractTx', async () => {
     try {
-      const result = await helper.buildContractCallTx(
+      const result = await helper.buildCallContractTx(
         `4f37545d72b4da2dcec24942ff281b9e140041df45df62b3fcc55cac760e2ead`,
         `TCfVo9rhFqngrCbqcMy2U7uEeFXcd5EyXP`,
         `transfer(address,uint256)`,
-        [{
-          type: `address`,
-          value: `TNxg4zPNzQRnVt6JFHRwc6Wf1LepSkhB3H`,
-        }, {
-          type: `uint256`,
-          value: `100000`
-        }],
+        [
+          `TNxg4zPNzQRnVt6JFHRwc6Wf1LepSkhB3H`,
+          `100000`
+        ],
+        ""
         )
       // console.error('result', JSON.stringify(result))
       assert.strictEqual(!!result.txId, true)
@@ -396,8 +412,9 @@ describe('Wallet', () => {
         `TCfVo9rhFqngrCbqcMy2U7uEeFXcd5EyXP`,
         `TNxg4zPNzQRnVt6JFHRwc6Wf1LepSkhB3H`,
         `1000000000`,
+        ""
         )
-      console.error('result', util.inspect(result, false, 10))
+      // console.error('result', util.inspect(result, false, 10))
       assert.strictEqual( !!result.txId, true)
     } catch (err) {
       console.error(err)

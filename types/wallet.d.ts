@@ -1,4 +1,19 @@
 import TronWeb from 'tronweb';
+export interface AbiElementType {
+    constant: boolean;
+    inputs: {
+        name: string;
+        type: string;
+    }[];
+    name: string;
+    outputs: {
+        name: string;
+        type: string;
+    }[];
+    payable: boolean;
+    stateMutability: string;
+    type: string;
+}
 export interface TransactionInfoType {
     id: string;
     fee?: number;
@@ -97,11 +112,12 @@ export default class TrxWallet {
     };
     /**
      * 构建转账TRX的交易
-     * @param pkey
+     * @param pkey 设置为空字符串，则是使用插件钱包签名，这时from必须指定
+     * @param from 设置为空字符串的话，pkey必须指定，且from使用pkey对应的address
      * @param toAddress
      * @param amount 最小单位
      */
-    buildTransferTx(pkey: string, toAddress: string, amount: string): Promise<{
+    buildTransferTx(pkey: string, from: string, toAddress: string, amount: string): Promise<{
         txId: string;
         txHex: string;
         txData: {
@@ -111,12 +127,18 @@ export default class TrxWallet {
     getBalance(address: string): Promise<string>;
     getTokenBalance(address: string, contractAddress: string): Promise<string>;
     getUnconfirmedTokenBalance(address: string, contractAddress: string): Promise<string>;
-    callViewMethod(fromAddress: string, contractAddress: string, method: string, params: {
-        type: string;
-        value: string;
-    }[]): Promise<string[]>;
+    callContractViewMethod(abi: AbiElementType[], contractAddress: string, methodName: string, params: any[], from: string, opts?: ContractCallOpt): Promise<any[]>;
     getUnconfirmedBalance(address: string): Promise<string>;
-    buildTransferTokenTx(pkey: string, contractAddress: string, toAddress: string, amount: string, opts?: ContractCallOpt): Promise<{
+    /**
+     * 构建转账token的交易
+     * @param pkey 设置为空字符串，则是使用插件钱包签名，这时from必须指定
+     * @param contractAddress
+     * @param toAddress
+     * @param amount
+     * @param from 设置为空字符串的话，pkey必须指定，且from使用pkey对应的address
+     * @param opts
+     */
+    buildTransferTokenTx(pkey: string, contractAddress: string, toAddress: string, amount: string, from: string, opts?: ContractCallOpt): Promise<{
         txId: any;
         txHex: any;
         txData: any;
@@ -165,10 +187,16 @@ export default class TrxWallet {
     sendRawTx(tx: {
         [x: string]: any;
     }): Promise<void>;
-    buildContractCallTx(pkey: string, contractAddress: string, method: string, params: {
-        type: string;
-        value: any;
-    }[], opts?: ContractCallOpt): Promise<{
+    /**
+     * 构建调用合约的交易
+     * @param pkey 设置为空字符串，则是使用插件钱包签名，这时from必须指定
+     * @param contractAddress
+     * @param methodFullName
+     * @param params
+     * @param from 设置为空字符串的话，pkey必须指定，且from使用pkey对应的address
+     * @param opts
+     */
+    buildCallContractTx(pkey: string, contractAddress: string, methodFullName: string, params: any[], from: string, opts?: ContractCallOpt): Promise<{
         txId: any;
         txHex: any;
         txData: any;

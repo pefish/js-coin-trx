@@ -1,3 +1,4 @@
+import TronWeb from 'tronweb';
 export interface TransactionInfoType {
     id: string;
     fee?: number;
@@ -72,6 +73,7 @@ export default class TrxWallet {
     private timeout;
     constructor(timeout?: number);
     setNode(node: string): void;
+    setTronWebInstance(tronWebInstance: TronWeb): void;
     getSeedHexByMnemonic(mnemonic: string, pass?: string): string;
     getXprivBySeed(seedHex: string): string;
     isAddress(address: string): boolean;
@@ -134,9 +136,21 @@ export default class TrxWallet {
         netAvail: number;
         energyAvail: number;
     }>;
+    buildModifyAddressPermissionTx(ownerPk: string, activeThreshold: number, activeKeys: {
+        address: string;
+        weight: number;
+    }[], ownerThreshold?: number, ownerKeys?: {
+        address: string;
+        weight: number;
+    }[]): Promise<{
+        txId: any;
+        txHex: any;
+        txData: any;
+    }>;
     syncSendRawTx(tx: {
         [x: string]: any;
     }): Promise<TransactionInfoType>;
+    waitConfirm(txHash: string, printLog?: boolean): Promise<TransactionInfoType>;
     sendRawTxReturnErr(tx: {
         [x: string]: any;
     }): Promise<Error>;

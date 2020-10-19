@@ -91,6 +91,10 @@ export default class TrxWallet {
     this.tronWeb = new TronWeb(new TronWeb.providers.HttpProvider(this.fullNode, this.timeout), new TronWeb.providers.HttpProvider(this.solidityNode, this.timeout))
   }
 
+  setTronWebInstance (tronWebInstance: TronWeb) {
+    this.tronWeb = tronWebInstance
+  }
+
   getSeedHexByMnemonic(mnemonic: string, pass: string = ''): string {
     return bip39Lib.mnemonicToSeedSync(mnemonic, pass).toString('hex')
   }
@@ -244,7 +248,6 @@ export default class TrxWallet {
       params,
       fromAddress,
     )
-    console.log(tx)
     if (!tx.result.result) {
       throw new Error(`result is false`)
     }
@@ -442,18 +445,29 @@ export default class TrxWallet {
   // 交易确认但是失败的话，抛出错误
   async syncSendRawTx(tx: { [x: string]: any }): Promise<TransactionInfoType> {
     await this.sendRawTx(tx)
-    while (true) {
-      // console.log(`检查 ${tx.txID} 交易中...`)
-      const tran = await this.getConfirmedTransactionInfo(tx.txID)
-      if (tran) {
-        // console.log(`${tx.txID} 交易已确认。区块id：${tran.blockNumber}`)
-        if (tran.receipt.result && tran.receipt.result !== `SUCCESS`) {
-          throw new Error(this.hexToUtf8(tran.resMessage))
-        }
-        return tran
-      }
-      await TimeUtil.sleep(3000)
+    const tran = await this.waitConfirm(tx.txID, false)
+    if (tran.receipt.result !== `SUCCESS`) {
+      throw new Error(this.hexToUtf8(tran.resMessage))
     }
+    return tran
+  }
+
+  async waitConfirm (txHash: string, printLog: boolean = true): Promise<TransactionInfoType> {
+    let tran: TransactionInfoType
+    while (true) {
+      try {
+        tran = await this.getConfirmedTransactionInfo(txHash)
+        if (tran && tran.receipt.result) {
+          break
+        }
+      } catch (err) {
+        console.error(err)
+      }
+      printLog && console.log(`${txHash} 未确认`)
+      await TimeUtil.sleep(1000)
+    }
+    printLog && console.log(`${txHash} 已确认！！`)
+    return tran
   }
 
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)

@@ -399,6 +399,16 @@ describe('Wallet', () => {
         )
       // console.error('result', JSON.stringify(result))
       assert.strictEqual(!!result.txId, true)
+
+      const result1 = await helper.buildCallContractTx(
+        `4f37545d72b4da2dcec24942ff281b9e140041df45df62b3fcc55cac760e2ead`,
+        `TCfVo9rhFqngrCbqcMy2U7uEeFXcd5EyXP`,
+        `transfer()`,
+        [],
+        ""
+        )
+      // console.error('result', JSON.stringify(result))
+      assert.strictEqual(!!result1.txId, true)
     } catch (err) {
       console.error(err)
       assert.throws(() => {}, err)

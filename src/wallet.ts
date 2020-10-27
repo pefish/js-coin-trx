@@ -602,9 +602,13 @@ export default class TrxWallet {
    */
   @retry(3, [`status code 502`, `Client network socket disconnected`], 0)
   async buildCallContractTx(pkey: string, contractAddress: string, methodFullName: string, params: any[], from: string, opts: ContractCallOpt = {}) {
-    const inputTypes = methodFullName.substring(methodFullName.lastIndexOf("(") + 1, methodFullName.lastIndexOf(")")).split(",").map((a) => {
-      return a.trim()
-    })
+    let inputTypes = []
+    const typesStr = methodFullName.substring(methodFullName.lastIndexOf("(") + 1, methodFullName.lastIndexOf(")"))
+    if (typesStr !== "") {
+      inputTypes = typesStr.split(",").map((a) => {
+        return a.trim()
+      })
+    }
     const newParams: {
       type: string,
       value: string

@@ -536,8 +536,8 @@ export default class TrxWallet {
     let tran: TransactionInfoType
     while (true) {
       try {
-        tran = await this.getConfirmedTransactionInfo(txHash)
-        if (tran && tran.receipt.result) {
+        tran = await this.getTransactionInfo(txHash)
+        if (tran && tran.receipt && tran.receipt.result) {
           break
         }
       } catch (err) {

@@ -5,8 +5,7 @@ import TronWeb from 'tronweb'
 import TimeUtil from '@pefish/js-util-time'
 import { retry } from '@pefish/js-decorator'
 import abiUtil from './abi'
-import util from 'util'
-
+import { toChecksumAddress } from "ethereumjs-util"
 
 export interface AbiElementType {
   constant: boolean,
@@ -654,5 +653,15 @@ export default class TrxWallet {
 
   addressToHex(address: string): string {
     return this.tronWeb.address.toHex(address)
+  }
+
+  toEtherAddress(address: string): string {
+    const hexAddress = this.addressToHex(address)
+    return toChecksumAddress(hexAddress.replace(/^41/, "0x"))
+  }
+
+  fromEtherAddress(etherAddress: string): string {
+    const hexAddress = etherAddress.replace(/^0x/, "41")
+    return this.hexToAddress(hexAddress)
   }
 }

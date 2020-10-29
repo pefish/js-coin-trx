@@ -205,4 +205,6 @@ export default class TrxWallet {
     utf8ToHex(utf8: string): string;
     hexToAddress(hex: string): string;
     addressToHex(address: string): string;
+    toEtherAddress(address: string): string;
+    fromEtherAddress(etherAddress: string): string;
 }

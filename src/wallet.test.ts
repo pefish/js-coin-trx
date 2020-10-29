@@ -326,6 +326,28 @@ describe('Wallet', () => {
     }
   })
 
+  it('toEtherAddress', async () => {
+    try {
+      const result = await helper.toEtherAddress(`TWjkoz18Y48SgWoxEeGG11ezCCzee8wo1A`)
+      // console.error('result', result)
+      assert.strictEqual(result, `0xe3CF5EeFE3A2aBf35a344AE8A3B2f4BB29810Cbd`)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
+  it('fromEtherAddress', async () => {
+    try {
+      const result = await helper.fromEtherAddress(`0xe3CF5EeFE3A2aBf35a344AE8A3B2f4BB29810CbD`)
+      // console.error('result', result)
+      assert.strictEqual(result, `TWjkoz18Y48SgWoxEeGG11ezCCzee8wo1A`)
+    } catch (err) {
+      console.error(err)
+      assert.throws(() => {}, err)
+    }
+  })
+
   it('getTransaction', async () => {
     try {
       const result = await helper.getTransaction(`37eb3c9fa0b9810cddc4e504fbe1d71c139d5b3ce4d402c884dc9b265538c2f2`)
